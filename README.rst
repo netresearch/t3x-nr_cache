@@ -49,66 +49,65 @@ Konfiguration
 To set up Couchbase as cache for TYPO3 'cache_phpcode' you need to alter your
 localconf.php in /typo3conf/ and add the following lines::
 
+ require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_backend.php';
+ require_once PATH_t3lib . 'cache/backend/class.t3lib_cache_backend_abstractbackend.php';
+ require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_phpcapablebackend.php';
+ require_once PATH_t3lib . 'cache/frontend/interfaces/interface.t3lib_cache_frontend_frontend.php';
+ require_once PATH_t3lib . 'cache/frontend/class.t3lib_cache_frontend_abstractfrontend.php';
+ require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Backend/Couchbase.php';
+ require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Frontend/FunctionResult.php';
+ require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/StreamWrapper.php';
+ if (true) {
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['options'] = array(
+         'servers' => array(
+             '192.168.1.51',
+         ),
+     );
+ }
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['options'] = array(
+     'servers' => array(
+         '192.168.1.51',
+     ),
+     //'identifier_prefix' => ''
+ );
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['options'] = array(
+     'servers' => array(
+         '192.168.1.51',
+     ),
+ );
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['options'] = array(
+     'servers' => array(
+         '192.168.1.51',
+     ),
+ );
+ if (true) {
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['t3lib_l10n']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['t3lib_l10n']['options'] = array(
+         'servers' => array(
+             '192.168.1.51',
+         ),
+     );
+ }
+ if (true) {
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['fluid_template']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+     $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['fluid_template']['options'] = array(
+         'servers' => array(
+             '192.168.1.51',
+         ),
+     );
+ }
 
-require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_backend.php';
-require_once PATH_t3lib . 'cache/backend/class.t3lib_cache_backend_abstractbackend.php';
-require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_phpcapablebackend.php';
-require_once PATH_t3lib . 'cache/frontend/interfaces/interface.t3lib_cache_frontend_frontend.php';
-require_once PATH_t3lib . 'cache/frontend/class.t3lib_cache_frontend_abstractfrontend.php';
-require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Backend/Couchbase.php';
-require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Frontend/FunctionResult.php';
-require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/StreamWrapper.php';
-if (true) {
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['options'] = array(
-        'servers' => array(
-            '192.168.1.51',
-        ),
-    );
-}
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-    //'identifier_prefix' => ''
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-if (true) {
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['t3lib_l10n']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['t3lib_l10n']['options'] = array(
-        'servers' => array(
-            '192.168.1.51',
-        ),
-    );
-}
-if (true) {
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['fluid_template']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-    $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['fluid_template']['options'] = array(
-        'servers' => array(
-            '192.168.1.51',
-        ),
-    );
-}
-
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['options'] = array(
+     'servers' => array(
+         '192.168.1.51',
+     ),
+ );
 
 
 
