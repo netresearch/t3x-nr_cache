@@ -402,7 +402,8 @@ class Couchbase
     {
         try {
             $strEntry = $this->couchbase->get(
-                self::IDENT_DATA_PREFIX . $strEntryIdentifier
+                $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
+                . $strEntryIdentifier
             );
         } catch (\Exception $e) {
             // we just ignore any error here - just no caching
@@ -551,7 +552,9 @@ class Couchbase
     {
         try {
             $result = $this->couchbase->get(
-                self::TAG_INDEX_PREFIX . $strTag, null, $strCas
+                $this->cache->getIdentifier() . '::' . self::TAG_INDEX_PREFIX
+                . $strTag,
+                null, $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -656,8 +659,9 @@ class Couchbase
     protected function setTagIndex(
         $strTag, array $arIdentifiers = null, $strCas = ''
     ) {
-        if (strpos($strTag, self::TAG_INDEX_PREFIX) !== 0) {
-            $strTag = self::TAG_INDEX_PREFIX . $strTag;
+        $strPreFix = $this->cache->getIdentifier() . '::' . self::TAG_INDEX_PREFIX;
+        if (strpos($strTag, $strPreFix) !== 0) {
+            $strTag = $strPreFix . $strTag;
         }
 
         if (null === $arIdentifiers) {
@@ -683,8 +687,9 @@ class Couchbase
     protected function setIdentifierIndex(
         $strEntryIdentifier, array $arTags = null, $strCas = ''
     ) {
-        if (strpos($strEntryIdentifier, self::IDENT_INDEX_PREFIX) !== 0) {
-            $strEntryIdentifier = self::IDENT_INDEX_PREFIX . $strEntryIdentifier;
+        $strPreFix = $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX;
+        if (strpos($strEntryIdentifier, $strPreFix) !== 0) {
+            $strEntryIdentifier = $strPreFix . $strEntryIdentifier;
         }
 
         if (null === $arTags) {
@@ -712,7 +717,9 @@ class Couchbase
         try {
             // Get tags for this identifier
             $arTags = $this->couchbase->getAndLock(
-                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
+                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
+                . $strEntryIdentifier,
+                $strCas
             );
 
             if (is_array($arTags)) {
@@ -721,7 +728,9 @@ class Couchbase
 
             // Clear reverse tag index for this identifier
             $this->couchbase->delete(
-                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
+                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
+                . $strEntryIdentifier,
+                $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -773,7 +782,8 @@ class Couchbase
         $arIds = array();
 
         foreach ($arTags as $strTag) {
-            $arIds[] = self::TAG_INDEX_PREFIX . $strTag;
+            $arIds[] = $this->cache->getIdentifier() . '::'
+                . self::TAG_INDEX_PREFIX . $strTag;
         }
 
         return $this->couchbase->getAndLockMulti($arIds, $arCas);
@@ -795,7 +805,9 @@ class Couchbase
     {
         try {
             $result = $this->couchbase->get(
-                self::IDENT_INDEX_PREFIX . $strIdentifier, $strCas
+                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
+                . $strIdentifier,
+                $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);

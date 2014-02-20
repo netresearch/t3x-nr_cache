@@ -51,19 +51,13 @@ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_runtime']['opti
 */
 
 
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_function_cache']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_function_cache']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
+$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_function_cache']
+    = $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['default'];
 
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-
+$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
+    = $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['default'];
+$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
+    ['frontend'] = '\t3lib_cache_frontend_StringFrontend';
+$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
+    ['options']['database'] = 2;
 ?>
