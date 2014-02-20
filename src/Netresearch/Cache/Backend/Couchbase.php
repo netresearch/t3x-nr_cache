@@ -369,14 +369,8 @@ class Couchbase
         }
 
         $nExpiration = $nLifetime !== null ? $nLifetime : $this->defaultLifetime;
-
-        $arData = array(
-            'data' => $strData,
-            'tags' => $arTags,
-        );
-
         $strCas = $this->couchbase->set(
-            $strEntryIdentifier, $arData, $nExpiration
+            $strEntryIdentifier, $strData, $nExpiration, '', 1
         );
 
         if ($strCas) {
