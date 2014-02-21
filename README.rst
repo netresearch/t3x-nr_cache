@@ -15,11 +15,13 @@ Netresearch Couchbase
 Übersicht
 =========
 
-AIDA Example dient als Beispiel-Erweiterung in der alle häufig benötigten
-Konfigurationen oder Code-Schnipsel beispielhaft aufgeführt sind.
+Provides functionality to store cache and session data in memory based caching
+systems like Couchbase, Redis, Memcache or Amazon ElastiCache.
 
-Sie dient als Referenz-Erweiterung.
-
+- Session handler - store frontend user session data in caching framework
+- Streamwrapper - store PHP code cache in caching framework
+- Couchbase - provide a Couchbase caching framework backend
+- Function cache - provides a callable caching frontend
 
 .. BEGIN ext_emconf.php
 
