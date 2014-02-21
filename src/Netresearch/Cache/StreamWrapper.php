@@ -463,7 +463,9 @@ class StreamWrapper
 
 
     /**
-     * @return \Couchbase
+     * Returns cache frontend controller.
+     *
+     * @return \t3lib_cache_frontend_StringFrontend
      */
     private function cache()
     {
@@ -471,7 +473,7 @@ class StreamWrapper
             return $this->cache;
         }
 
-        /** @var t3lib_cache_Manager $typo3CacheManager */
+        /** @var \t3lib_cache_Manager $typo3CacheManager */
         global $typo3CacheManager;
 
         $this->cache = $typo3CacheManager->getCache(
