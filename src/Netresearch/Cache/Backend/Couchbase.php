@@ -221,7 +221,10 @@ class Couchbase
 
         if (isset($_REQUEST['clear_cache']) && false === self::$bFlushed) {
             try {
-                $this->couchbase->flush();
+                // flush all entries for this identifier
+                $this->flush();
+                // flush whole couchbase
+                //$this->couchbase->flush();
             } catch (\Exception $e) {
                 var_dump($e);
             }
