@@ -15,49 +15,33 @@ declare(encoding = 'UTF-8');
 
 defined('TYPO3_MODE') or die('Access denied.');
 
-/*
+$arCacheCfg = &$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations'];
 
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_hash']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-    //'identifier_prefix' => ''
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pages']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_pagesection']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_phpcode']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_runtime']['backend'] = '\Netresearch\Cache\Backend\Couchbase';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['cache_runtime']['options'] = array(
-    'servers' => array(
-        '192.168.1.51',
-    ),
-);
-*/
+$arCacheCfg['nr_function_cache'] = $arCacheCfg['default'];
+
+$arCacheCfg['nr_cache_streamwrapper'] = $arCacheCfg['default'];
+$arCacheCfg['nr_cache_streamwrapper']['frontend']
+    = '\t3lib_cache_frontend_StringFrontend';
+if (isset($arCacheCfg['nr_cache_streamwrapper']['options']['database'])) {
+    $arCacheCfg['nr_cache_streamwrapper']['options']['database'] = 2;
+}
 
 
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_function_cache']
-    = $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['default'];
+// register XCLASS to overwrite session storage handling
+$TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php']
+    = t3lib_extMgm::extPath('nr_cache') . 'src/Netresearch/Cache/Session.php';
 
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
-    = $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['default'];
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
-    ['frontend'] = '\t3lib_cache_frontend_StringFrontend';
-$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_streamwrapper']
-    ['options']['database'] = 2;
+
+$arCacheCfg['nr_cache_session'] = $arCacheCfg['default'];
+$arCacheCfg['nr_cache_session']['frontend']
+    = '\t3lib_cache_frontend_VariableFrontend';
+if (isset($arCacheCfg['nr_cache_streamwrapper']['options']['database'])) {
+    $arCacheCfg['nr_cache_session']['options']['database'] = 3;
+}
+$arCacheCfg['nr_cache_session']['options']['defaultLifetime']
+    = $TYPO3_CONF_VARS['FE']['sessionDataLifetime'];
+
+require_once t3lib_extMgm::extPath('nr_cache') . 'src/Netresearch/Cache/Session.php';
+class ux_tslib_feUserAuth extends \Netresearch\Cache\Session {}
+
 ?>

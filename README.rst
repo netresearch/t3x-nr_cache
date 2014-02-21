@@ -109,6 +109,28 @@ localconf.php in /typo3conf/ and add the following lines::
      ),
  );
 
+Session
+=======
+
+Adds an XCLASS for tslib_feuserauth to overwrite session storage handling.
+
+Configuration
+-------------
+
+Session storage is configured like any other caching configuration.
+Name of the used caching configuration is 'nr_cache_session'::
+
+ // register XCLASS to overwrite session storage handling
+ $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php']
+     = '\Netresearch\Cache\Session';
+
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_session']
+     = $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['default'];
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_session']
+     ['frontend'] = '\t3lib_cache_frontend_StringFrontend';
+ $TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations']['nr_cache_session']
+     ['options']['database'] = 3;
+
 
 
 Referenzen
