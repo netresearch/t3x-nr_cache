@@ -1,12 +1,17 @@
 <?php
 declare(encoding = 'UTF-8');
-
 /**
- * Created by PhpStorm.
- * User: sebastian.mendel
- * Date: 02.01.14
- * Time: 11:32
+ *
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    AGPL http://www.netresearch.de/
+ * @link       http://www.netresearch.de/
+ * @api
+ * @scope       prototype
  */
+
 
 namespace Netresearch\Cache\Frontend;
 

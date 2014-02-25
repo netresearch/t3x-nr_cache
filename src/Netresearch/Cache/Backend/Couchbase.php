@@ -20,11 +20,6 @@ declare(encoding = 'UTF-8');
  * This prefix makes sure that keys from the different installations do not
  * conflict.
  *
- * Note: When using the Memcached backend to store values of more than ~1 MB,
- * the data will be split into chunks to make them fit into the memcached limits.
- *
- * This file is a backport from FLOW3 by Ingo Renner.
- *
  * @category   Controller
  * @package    Netresearch
  * @subpackage CachingFramework
@@ -44,7 +39,6 @@ namespace Netresearch\Cache\Backend;
  */
 class Couchbase
     extends \t3lib_cache_backend_AbstractBackend
-    implements \t3lib_cache_backend_PhpCapableBackend
 {
     const CHUNK_PREFIX = 'TYPO3*chunked:';
     const TAG_INDEX_PREFIX = 'tag::';
@@ -104,8 +98,6 @@ class Couchbase
      */
     public $bCacheExceptions = false;
 
-    protected static $bWrapperRegistered = false;
-
     /**
      * Constructs this backend
      *
@@ -122,14 +114,6 @@ class Couchbase
                 'order to use the Couchbase backend.',
                 1213987706
             );
-        }
-
-        if (false === self::$bWrapperRegistered) {
-            stream_wrapper_register(
-                'nrcache', 'Netresearch\Cache\StreamWrapper'
-            )
-                or die("Failed to register stream wrapper in " . __METHOD__);
-            self::$bWrapperRegistered = true;
         }
 
         if (! empty($arOptions['identifier_prefix']) ) {
@@ -852,30 +836,6 @@ class Couchbase
 
 
     /**
-     * Loads PHP code from the cache and require_onces it right away.
-     *
-     * @param string $strIdentifier An identifier which describes the cache entry
-     *                              to load
-     *
-     * @return mixed Potential return value from the include operation
-     * @api
-     */
-    public function requireOnce($strIdentifier)
-    {
-        $strPath = 'nrcache://' . $this->arServers[0]
-                   . '/' . $this->strBucket . '/' . $strIdentifier;
-
-        if (! file_exists($strPath)) {
-            return false;
-        }
-
-        require_once $strPath;
-        return true;
-    }
-
-
-
-    /**
      * Set Callback methods for cache
      *
      * @param string $callback like Cache_Function_NrTest->registeredCallback
@@ -886,6 +846,24 @@ class Couchbase
     public function setCallbacks($callback, $arParams)
     {
         $this->arCallback[] = array($callback, $arParams);
+    }
+
+
+
+    /**
+     * Does nothing.
+     *
+     * Some TYPO3 CachingFramework configuration like 'cache_phpcode' do set
+     * 'cacheDirectory' in their options -this is the easiest way to ignore this
+     * option cause we do not require this option for memory based caching backends.
+     *
+     * @param string $strPath Path where to store the cached file.
+     *
+     * @return void
+     */
+    public function setCacheDirectory($strPath)
+    {
+        // dummy
     }
 }
 ?>

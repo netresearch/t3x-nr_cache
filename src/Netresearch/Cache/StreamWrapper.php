@@ -1,5 +1,17 @@
 <?php
 declare(encoding = 'UTF-8');
+/**
+ *
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    AGPL http://www.netresearch.de/
+ * @link       http://www.netresearch.de/
+ * @api
+ * @scope       prototype
+ */
+
 
 namespace Netresearch\Cache;
 /**
@@ -14,13 +26,8 @@ class StreamWrapper
      */
     var $nPosition = 0;
 
-    var $strServer = 'localhost';
-    var $nPort = 11211;
-    var $strUser = '';
-    var $strPass = '';
-    var $strBucket = 'default';
+    var $strCache = '';
     var $strIdentifier = '';
-    var $arTags = array();
 
     /**
      * @var \t3lib_cache_frontend_StringFrontend
@@ -32,8 +39,7 @@ class StreamWrapper
     /**
      * Open stream.
      *
-     * coucbase://server:port/bucket/tag/
-     * coucbase://server:port/bucket/identifier
+     * nrcache://cacheConfig/identifier
      *
      * @param string  $strPath      Path for stream to open.
      * @param string  $mode         Stream open mode
@@ -61,15 +67,9 @@ class StreamWrapper
     {
         $arUrl = parse_url($strPath);
 
-        $this->strServer   = $arUrl['host'];
-        $this->nPort       = $arUrl['port'];
-        $this->strUser     = $arUrl['user'];
-        $this->strPass     = $arUrl['pass'];
+        $this->strCache = $arUrl['host'];
 
         $this->parsePath($arUrl['path']);
-
-        //$this->strQuery    = $url['query'];
-        //$this->strFragment = $url['fragment'];
     }
 
 
@@ -79,9 +79,7 @@ class StreamWrapper
      *
      * $strPath examples:
      *
-     * - /bucket/tag/tag/
-     * - /bucket/identifier
-     * - /bucket/tag/identifier
+     * - /identifier
      *
      * @param string $strPath Path part of an URI
      *
@@ -89,16 +87,11 @@ class StreamWrapper
      */
     private function parsePath($strPath)
     {
-        // /bucket/tag/[tag/]
-        // /bucket/identifier
         $arPath = explode('/', $strPath);
         // leading slash
         array_shift($arPath);
-        // first path part is bucket name
-        $this->strBucket = array_shift($arPath);
         // last path part (file) is identifier
         $this->strIdentifier = array_pop($arPath);
-        $this->arTags = $arPath;
     }
 
 
@@ -130,11 +123,6 @@ class StreamWrapper
     function stream_write($data)
     {
         die (__METHOD__  . ' not implemented yet.');
-        $left = substr($GLOBALS[$this->varname], 0, $this->nPosition);
-        $right = substr($GLOBALS[$this->varname], $this->nPosition + strlen($data));
-        $GLOBALS[$this->varname] = $left . $data . $right;
-        $this->nPosition += strlen($data);
-        return strlen($data);
     }
 
 
@@ -171,7 +159,7 @@ class StreamWrapper
         die (__METHOD__  . ' not implemented yet.');
         switch ($whence) {
         case SEEK_SET:
-            if ($offset < strlen($GLOBALS[$this->varname]) && $offset >= 0) {
+            if ($offset < strlen($this->get()) && $offset >= 0) {
                 $this->nPosition = $offset;
                 return true;
             } else {
@@ -189,8 +177,8 @@ class StreamWrapper
             break;
 
         case SEEK_END:
-            if (strlen($GLOBALS[$this->varname]) + $offset >= 0) {
-                $this->nPosition = strlen($GLOBALS[$this->varname]) + $offset;
+            if (strlen($this->get()) + $offset >= 0) {
+                $this->nPosition = strlen($this->get()) + $offset;
                 return true;
             } else {
                 return false;
@@ -432,9 +420,7 @@ class StreamWrapper
     {
         $this->parseUrl($strPath);
 
-        $strEntry = $this->get(
-            $this->strIdentifier
-        );
+        $strEntry = $this->get();
 
         if (null === $strEntry) {
             return false;
@@ -445,6 +431,11 @@ class StreamWrapper
 
 
 
+    /**
+     * Returns file content.
+     *
+     * @return string
+     */
     private function get()
     {
         static $strLastIdentifier = '';
@@ -476,10 +467,9 @@ class StreamWrapper
         /** @var \t3lib_cache_Manager $typo3CacheManager */
         global $typo3CacheManager;
 
-        $this->cache = $typo3CacheManager->getCache(
-            'nr_cache_streamwrapper'
-        );
+        $this->cache = $typo3CacheManager->getCache($this->strCache);
 
         return $this->cache;
     }
 }
+?>
