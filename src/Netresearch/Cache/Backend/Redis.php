@@ -25,22 +25,6 @@ class Backend_Redis
     implements \t3lib_cache_backend_PhpCapableBackend
 {
     /**
-     * Constructs this backend
-     *
-     * @param string $strContext FLOW3's application context
-     * @param array  $arOptions  Configuration options - depends on the actual backend
-     *
-     * @throws \t3lib_cache_Exception if couchbase is not installed
-     */
-    public function __construct($strContext, array $arOptions = array())
-    {
-        StreamWrapper::register();
-
-        parent::__construct($strContext, $arOptions);
-    }
-
-
-    /**
      * Does nothing.
      *
      * Some TYPO3 CachingFramework configuration like 'cache_phpcode' do set
@@ -68,13 +52,9 @@ class Backend_Redis
      */
     public function requireOnce($entryIdentifier)
     {
-        $strPath = 'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier;
-
-        if (! file_exists($strPath)) {
-            return false;
-        }
-
-        return require_once $strPath;
+        return \Netresearch\Cache\StreamWrapper::requireOnce(
+            'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
+        );
     }
 }
 ?>

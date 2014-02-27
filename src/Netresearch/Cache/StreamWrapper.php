@@ -34,7 +34,10 @@ class StreamWrapper
      */
     var $cache = null;
 
-    protected static $bWrapperRegistered = false;
+    /**
+     * @var bool Flag to mark whether the stream wrapper is registered
+     */
+    protected static $bisRegistered = false;
 
     /**
      * Register this stream wrapper.
@@ -43,14 +46,35 @@ class StreamWrapper
      */
     static public function register()
     {
-        if (false === self::$bWrapperRegistered) {
+        if (false === self::$bisRegistered) {
             stream_wrapper_register(
                 'nrcache', 'Netresearch\Cache\StreamWrapper'
-            )
-            or die("Failed to register stream wrapper in " . __METHOD__);
-            self::$bWrapperRegistered = true;
+            );
+            self::$bisRegistered = true;
         }
     }
+
+
+
+    /**
+     * Loads cached content as PHP code by including it with require_once.
+     *
+     * @param string $strPath An identifier which describes the cache
+     *                        entry to load
+     *
+     * @return mixed Potential return value from the include operation
+     */
+    public static function requireOnce($strPath)
+    {
+        self::register();
+
+        if (! file_exists($strPath)) {
+            return false;
+        }
+
+        return require_once $strPath;
+    }
+
 
 
     /**

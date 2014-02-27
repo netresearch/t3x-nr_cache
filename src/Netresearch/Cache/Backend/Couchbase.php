@@ -117,8 +117,6 @@ class Couchbase
             );
         }
 
-        \Netresearch\Cache\StreamWrapper::register();
-
         if (! empty($arOptions['identifier_prefix']) ) {
             $this->strIdentifierPrefix = $arOptions['identifier_prefix'];
         }
@@ -881,13 +879,9 @@ class Couchbase
      */
     public function requireOnce($entryIdentifier)
     {
-        $strPath = 'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier;
-
-        if (! file_exists($strPath)) {
-            return false;
-        }
-
-        return require_once $strPath;
+        return \Netresearch\Cache\StreamWrapper::requireOnce(
+            'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
+        );
     }
 }
 ?>
