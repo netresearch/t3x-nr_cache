@@ -33,7 +33,7 @@ class Frontend_Code
      */
     public function requireOnce($entryIdentifier)
     {
-        return \Netresearch\Cache\StreamWrapper::requireOnce(
+        return StreamWrapper::requireOnce(
             'nrcache://' . $this->identifier . '/' . $entryIdentifier
         );
     }

@@ -52,12 +52,16 @@ To set up Couchbase as cache for TYPO3 'cache_phpcode' you need to alter your
 localconf.php in /typo3conf/ and add the following lines::
 
     require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_backend.php';
+    require_once PATH_t3lib . 'cache/backend/interfaces/interface.t3lib_cache_backend_phpcapablebackend.php';
     require_once PATH_t3lib . 'cache/backend/class.t3lib_cache_backend_abstractbackend.php';
+    require_once PATH_t3lib . 'cache/backend/class.t3lib_cache_backend_redisbackend.php';
     require_once PATH_t3lib . 'cache/frontend/interfaces/interface.t3lib_cache_frontend_frontend.php';
     require_once PATH_t3lib . 'cache/frontend/class.t3lib_cache_frontend_abstractfrontend.php';
     require_once PATH_t3lib . 'cache/frontend/class.t3lib_cache_frontend_stringfrontend.php';
+    require_once PATH_t3lib . 'cache/frontend/class.t3lib_cache_frontend_phpfrontend.php';
 
     require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Backend/Couchbase.php';
+    require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Backend/Redis.php';
     require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Frontend/Code.php';
     require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/Frontend/FunctionResult.php';
     require_once PATH_typo3conf . 'ext/nr_cache/src/Netresearch/Cache/StreamWrapper.php';
@@ -66,7 +70,7 @@ localconf.php in /typo3conf/ and add the following lines::
 
     if (extension_loaded('redis')) {
         $arCacheCfg['default'] = array(
-            'backend' => '\Netresearch\Cache\Backend\Redis',
+            'backend' => '\Netresearch\Cache\Backend_Redis',
             'options' => array(
                 'hostname'         => 'my.redis.host',
         #        'port'             => 6379,
@@ -78,7 +82,7 @@ localconf.php in /typo3conf/ and add the following lines::
         );
     } elseif (extension_loaded('couchbase')) {
         $arCacheCfg['default'] = array(
-            'backend' => '\Netresearch\Cache\Backend\Couchbase',
+            'backend' => '\Netresearch\Cache\Backend_Couchbase',
             'options' => array(
                 'servers' => array(
                     'my.couchbase.host',

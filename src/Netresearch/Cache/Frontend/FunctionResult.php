@@ -13,14 +13,14 @@ declare(encoding = 'UTF-8');
  */
 
 
-namespace Netresearch\Cache\Frontend;
+namespace Netresearch\Cache;
 
 /**
  * Class AbstractCallable
  *
  * @package Netresearch\Cache
  */
-class FunctionResult
+class Frontend_FunctionResult
     extends \t3lib_cache_frontend_AbstractFrontend
 {
     /**

@@ -30,14 +30,14 @@ declare(encoding = 'UTF-8');
  * @scope       prototype
  */
 
-namespace Netresearch\Cache\Backend;
+namespace Netresearch\Cache;
 
 /**
  * Class Netresearch_Cache_Couchbase_Backend
  *
  * @package Netresearch\Cache\Couchbase
  */
-class Couchbase
+class Backend_Couchbase
     extends \t3lib_cache_backend_AbstractBackend
     implements \t3lib_cache_backend_PhpCapableBackend
 {
@@ -879,7 +879,7 @@ class Couchbase
      */
     public function requireOnce($entryIdentifier)
     {
-        return \Netresearch\Cache\StreamWrapper::requireOnce(
+        return StreamWrapper::requireOnce(
             'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
         );
     }

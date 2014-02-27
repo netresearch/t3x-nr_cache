@@ -52,7 +52,7 @@ class Backend_Redis
      */
     public function requireOnce($entryIdentifier)
     {
-        return \Netresearch\Cache\StreamWrapper::requireOnce(
+        return StreamWrapper::requireOnce(
             'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
         );
     }
