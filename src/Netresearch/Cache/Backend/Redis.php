@@ -22,7 +22,24 @@ namespace Netresearch\Cache;
  */
 class Backend_Redis
     extends \t3lib_cache_backend_RedisBackend
+    implements \t3lib_cache_backend_PhpCapableBackend
 {
+    /**
+     * Constructs this backend
+     *
+     * @param string $strContext FLOW3's application context
+     * @param array  $arOptions  Configuration options - depends on the actual backend
+     *
+     * @throws \t3lib_cache_Exception if couchbase is not installed
+     */
+    public function __construct($strContext, array $arOptions = array())
+    {
+        StreamWrapper::register();
+
+        parent::__construct($strContext, $arOptions);
+    }
+
+
     /**
      * Does nothing.
      *
@@ -37,6 +54,27 @@ class Backend_Redis
     public function setCacheDirectory($strPath)
     {
         // dummy
+    }
+
+
+
+    /**
+     * Loads PHP code from the cache and require_onces it right away.
+     *
+     * @param string $entryIdentifier An identifier which describes the cache
+     *                                entry to load
+     *
+     * @return mixed Potential return value from the include operation
+     */
+    public function requireOnce($entryIdentifier)
+    {
+        $strPath = 'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier;
+
+        if (! file_exists($strPath)) {
+            return false;
+        }
+
+        return require_once $strPath;
     }
 }
 ?>

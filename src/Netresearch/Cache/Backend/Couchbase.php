@@ -39,6 +39,7 @@ namespace Netresearch\Cache\Backend;
  */
 class Couchbase
     extends \t3lib_cache_backend_AbstractBackend
+    implements \t3lib_cache_backend_PhpCapableBackend
 {
     const CHUNK_PREFIX = 'TYPO3*chunked:';
     const TAG_INDEX_PREFIX = 'tag::';
@@ -115,6 +116,8 @@ class Couchbase
                 1213987706
             );
         }
+
+        \Netresearch\Cache\StreamWrapper::register();
 
         if (! empty($arOptions['identifier_prefix']) ) {
             $this->strIdentifierPrefix = $arOptions['identifier_prefix'];
@@ -864,6 +867,27 @@ class Couchbase
     public function setCacheDirectory($strPath)
     {
         // dummy
+    }
+
+
+
+    /**
+     * Loads PHP code from the cache and require_onces it right away.
+     *
+     * @param string $entryIdentifier An identifier which describes the cache
+     *                                entry to load
+     *
+     * @return mixed Potential return value from the include operation
+     */
+    public function requireOnce($entryIdentifier)
+    {
+        $strPath = 'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier;
+
+        if (! file_exists($strPath)) {
+            return false;
+        }
+
+        return require_once $strPath;
     }
 }
 ?>

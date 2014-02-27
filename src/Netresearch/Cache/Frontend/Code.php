@@ -20,31 +20,26 @@ namespace Netresearch\Cache;
  * Cached code can be included like any other PHP source file.
  *
  */
-class Frontend_Code extends \t3lib_cache_frontend_StringFrontend
+class Frontend_Code
+    extends \t3lib_cache_frontend_PhpFrontend
 {
 
     protected static $bWrapperRegistered = false;
 
     /**
-     * Saves the PHP source code in the cache.
+     * Constructs this backend
      *
-     * @param string  $entryIdentifier An identifier used for this cache entry,
-     *                                 for example the class name
-     * @param string  $sourceCode      PHP source code
-     * @param array   $tags            Tags to associate with this cache entry
-     * @param integer $lifetime        Lifetime of this cache entry in seconds.
-     *                                 If NULL is specified, the default lifetime
-     *                                 is used. "0" means unlimited lifetime.
+     * @param string                                 $strIdentifier Cache identifier
+     * @param \t3lib_cache_backend_PhpCapableBackend $backend       Backend
      *
-     * @return void
+     * @throws \t3lib_cache_Exception if couchbase is not installed
      */
-    public function set(
-        $entryIdentifier, $sourceCode, array $tags = array(), $lifetime = null
+    public function __construct(
+        $strIdentifier, \t3lib_cache_backend_PhpCapableBackend $backend
     ) {
-        $sourceCode = '<?php' . chr(10) . $sourceCode . chr(10) . '#';
-        parent::set($entryIdentifier, $sourceCode, $tags, $lifetime);
+        StreamWrapper::register();
+        parent::__construct($strIdentifier, $backend);
     }
-
 
 
     /**

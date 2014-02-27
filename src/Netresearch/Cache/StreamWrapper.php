@@ -34,6 +34,23 @@ class StreamWrapper
      */
     var $cache = null;
 
+    protected static $bWrapperRegistered = false;
+
+    /**
+     * Register this stream wrapper.
+     *
+     * return void
+     */
+    static public function register()
+    {
+        if (false === self::$bWrapperRegistered) {
+            stream_wrapper_register(
+                'nrcache', 'Netresearch\Cache\StreamWrapper'
+            )
+            or die("Failed to register stream wrapper in " . __METHOD__);
+            self::$bWrapperRegistered = true;
+        }
+    }
 
 
     /**
