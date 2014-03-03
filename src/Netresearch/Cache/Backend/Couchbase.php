@@ -383,7 +383,7 @@ class Backend_Couchbase
         }
 
         try {
-            $strEntry = $this->couchbase->get(
+            $data = $this->couchbase->get(
                 $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
                 . $strEntryIdentifier
             );
@@ -392,16 +392,16 @@ class Backend_Couchbase
             return false;
         }
 
-        if (is_string($strEntry)) {
-            $this->strData = $strEntry;
-        } elseif (is_array($strEntry)) {
-            $this->strData = $strEntry[self::KEY_DATA];
-        } elseif (is_object($strEntry)) {
-            $this->strData = $strEntry->{self::KEY_DATA};
-        } elseif (false === $strEntry) {
+        if (is_string($data)) {
+            $this->strData = $data;
+        } elseif (is_array($data)) {
+            $this->strData = $data[self::KEY_DATA];
+        } elseif (is_object($data)) {
+            $this->strData = $data->{self::KEY_DATA};
+        } elseif (false === $data) {
             $this->strData = false;
         } else {
-            var_dump($strEntry);
+            var_dump($data);
             exit;
         }
 
@@ -857,15 +857,15 @@ class Backend_Couchbase
     /**
      * Loads PHP code from the cache and require_onces it right away.
      *
-     * @param string $entryIdentifier An identifier which describes the cache
+     * @param string $strIdentifier An identifier which describes the cache
      *                                entry to load
      *
      * @return mixed Potential return value from the include operation
      */
-    public function requireOnce($entryIdentifier)
+    public function requireOnce($strIdentifier)
     {
         return StreamWrapper::requireOnce(
-            'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
+            'nrcache://' . $this->cacheIdentifier . '/' . $strIdentifier
         );
     }
 }
