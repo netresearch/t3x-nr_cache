@@ -807,7 +807,7 @@ class Backend_Couchbase
      */
     public function setCacheDirectory($strPath)
     {
-        // dummy
+        $this->strIdentifierPrefix = str_replace(PATH_site, '', $strPath);
     }
 
 
