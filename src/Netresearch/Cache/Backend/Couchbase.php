@@ -90,6 +90,16 @@ class Backend_Couchbase
     protected $strBucket = 'default';
 
     /**
+     * @var string Connection user name.
+     */
+    protected $strUser = '';
+
+    /**
+     * @var string Connection password.
+     */
+    protected $strPassword = '';
+
+    /**
      * @var array Callbacks
      */
     protected $arCallback = array();
@@ -182,7 +192,8 @@ class Backend_Couchbase
 
         try {
             $this->couchbase = new \Couchbase(
-                $this->arServers
+                $this->arServers, $this->strUser, $this->strPassword,
+                $this->strBucket
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -865,6 +876,48 @@ class Backend_Couchbase
     public function setCacheDirectory($strPath)
     {
         // dummy
+    }
+
+
+
+    /**
+     * Sets couchbase bucket to use for this cache instance.
+     *
+     * @param string $strBucket Name of bucket.
+     *
+     * @return void
+     */
+    public function setBucket($strBucket)
+    {
+        $this->strBucket = $strBucket;
+    }
+
+
+
+    /**
+     * Sets couchbase connection user name to use for this cache instance.
+     *
+     * @param string $strUser Name of bucket.
+     *
+     * @return void
+     */
+    public function setUser($strUser)
+    {
+        $this->strUser = $strUser;
+    }
+
+
+
+    /**
+     * Sets couchbase connection password to use for this cache instance.
+     *
+     * @param string $strPassword Name of bucket.
+     *
+     * @return void
+     */
+    public function setPassword($strPassword)
+    {
+        $this->strPassword = $strPassword;
     }
 
 

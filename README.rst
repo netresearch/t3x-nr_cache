@@ -100,6 +100,15 @@ localconf.php in /typo3conf/ and add the following lines::
     $arCacheCfg['fluid_template'] = $arCacheCfg['default'];
     $arCacheCfg['fluid_template']['frontend'] = '\Netresearch\Cache\Frontend_Code';
 
+Couchbase options
+-----------------
+
+- user
+- password
+- bucket
+- servers
+- compression
+
 Session
 =======
 
@@ -119,8 +128,6 @@ Name of the used caching configuration is 'nr_cache_session'::
  $arCacheCfg['nr_cache_session'] = $arCacheCfg['default'];
  $arCacheCfg['nr_cache_session']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
  $arCacheCfg['nr_cache_session']['options']['database'] = 3;
-
-
 
 Referenzen
 ==========
