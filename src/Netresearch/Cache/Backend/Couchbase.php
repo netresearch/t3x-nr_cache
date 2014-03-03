@@ -41,7 +41,6 @@ class Backend_Couchbase
     extends \t3lib_cache_backend_AbstractBackend
     implements \t3lib_cache_backend_PhpCapableBackend
 {
-    const CHUNK_PREFIX = 'TYPO3*chunked:';
     const TAG_INDEX_PREFIX = 'tag::';
     const IDENT_INDEX_PREFIX = 'ident::';
     const IDENT_DATA_PREFIX = 'data::';
@@ -280,15 +279,9 @@ class Backend_Couchbase
             $arTags[] = $this->cache->getIdentifier();
             $arTags = array_unique($arTags);
 
-            if (strlen($strData) > self::MAX_VALUE_SIZE) {
-                $bSuccess = $this->storeSplitted(
-                    $strEntryIdentifier, $strData, $nLifetime, $arTags
-                );
-            } else {
-                $bSuccess = $this->store(
-                    $strEntryIdentifier, $strData, $nLifetime, $arTags
-                );
-            }
+            $bSuccess = $this->store(
+                $strEntryIdentifier, $strData, $nLifetime, $arTags
+            );
 
             if ($bSuccess === true) {
                 $this->removeIdentifierFromAllTags($strEntryIdentifier);
@@ -308,44 +301,6 @@ class Backend_Couchbase
                 \t3lib_div::SYSLOG_SEVERITY_WARNING
             );
         }
-    }
-
-
-
-    /**
-     * Stores cache entry splitted into self::MAX_VALUE_SIZE chunks.
-     *
-     * @param string  $strEntryIdentifier Cache entry identifier
-     * @param string  $strData            Cache content/data
-     * @param integer $nLifetime          Cache lifetime in seconds
-     * @param array   $arTags             Tags for cache entry
-     *
-     * @return bool
-     */
-    private function storeSplitted(
-        $strEntryIdentifier, $strData, $nLifetime, array $arTags
-    ) {
-        $arData       = str_split($strData, self::MAX_VALUE_SIZE);
-        $bSuccess     = true;
-        $nChunkNumber = 1;
-
-        foreach ($arData as $strChunk) {
-            $bSuccess = $bSuccess && $this->store(
-                $strEntryIdentifier . '_chunk_' . $nChunkNumber,
-                $strChunk,
-                $nLifetime,
-                $arTags
-            );
-            $nChunkNumber++;
-        }
-        $bSuccess = $bSuccess && $this->store(
-            $strEntryIdentifier,
-            self::CHUNK_PREFIX . $nChunkNumber,
-            $nLifetime,
-            $arTags
-        );
-
-        return $bSuccess;
     }
 
 
@@ -435,65 +390,7 @@ class Backend_Couchbase
             exit;
         }
 
-        if (static::isChunkHeader($strData)) {
-            return $this->getSplittedEntry($strData, $strEntryIdentifier);
-        }
-
-
         return $this->strData;
-    }
-
-
-
-    /**
-     * Returns a splitted cache entry.
-     *
-     * @param string $strEntry           Cache entry header
-     * @param string $strEntryIdentifier Cache entry Identifier
-     *
-     * @return string
-     */
-    protected function getSplittedEntry($strEntry, $strEntryIdentifier)
-    {
-        list(, $nChunkCount) = explode(':', $strEntry);
-
-        $strEntry = '';
-        for ($nChunkNumber = 1; $nChunkNumber < $nChunkCount; $nChunkNumber++) {
-            $strEntry .= $this->getChunk($strEntryIdentifier, $nChunkNumber);
-        }
-
-        return $strEntry;
-    }
-
-
-
-    /**
-     * Returns single chunk from splitted cache entry.
-     *
-     * @param string  $strEntryIdentifier Cache entry Identifier
-     * @param integer $nChunkNumber       Cache entry chunk number
-     *
-     * @return mixed
-     */
-    protected function getChunk($strEntryIdentifier, $nChunkNumber)
-    {
-        return $this->get(
-            $strEntryIdentifier . '_chunk_' . $nChunkNumber
-        );
-    }
-
-
-
-    /**
-     * Returns whether the cache entry is a chunk header.
-     *
-     * @param string $strEntry Cache entry
-     *
-     * @return bool
-     */
-    protected function isChunkHeader($strEntry)
-    {
-        return strpos($strEntry, self::CHUNK_PREFIX) === 0;
     }
 
 
