@@ -19,9 +19,9 @@ defined('TYPO3_MODE') or die('Access denied.');
 $strPath = t3lib_extMgm::extPath('nr_cf_couchbase');
 
 return array(
-    '\netresearch\cache\backend\couchbase'
+    '\netresearch\cache\backend_couchbase'
         => $strPath . 'src/Netresearch/Cache/Backend/Couchbase.php',
-    '\netresearch\cache\frontend\functionresult'
+    '\netresearch\cache\frontend_functionresult'
         => $strPath . 'src/Netresearch/Cache/Frontend/FunctionResult.php',
     '\netresearch\cache\streamwrapper'
         => $strPath . 'src/Netresearch/Cache/StreamWrapper.php',
