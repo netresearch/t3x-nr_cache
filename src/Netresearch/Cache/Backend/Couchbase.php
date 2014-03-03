@@ -45,6 +45,12 @@ class Backend_Couchbase
     const IDENT_INDEX_PREFIX = 'ident::';
     const IDENT_DATA_PREFIX = 'data::';
 
+    const KEY_TIME       = 'nTime';
+    const KEY_EXPIRATION = 'nExpiration';
+    const KEY_SIZE       = 'nSize';
+    const KEY_TAGS       = 'arTags';
+    const KEY_DATA       = 'strData';
+
     static $bFlushed = false;
 
     /**
@@ -333,8 +339,17 @@ class Backend_Couchbase
         }
 
         $nExpiration = $nLifetime !== null ? $nLifetime : $this->defaultLifetime;
+
+        $data = array(
+            self::KEY_TIME       => time(),
+            self::KEY_EXPIRATION => $nExpiration,
+            self::KEY_SIZE       => strlen($strData),
+            self::KEY_TAGS       => $arTags,
+            self::KEY_DATA       => $strData,
+        );
+
         $strCas = $this->couchbase->set(
-            $strEntryIdentifier, $strData, $nExpiration, '', 1
+            $strEntryIdentifier, $data, $nExpiration
         );
 
         if ($strCas) {
@@ -380,9 +395,9 @@ class Backend_Couchbase
         if (is_string($strEntry)) {
             $this->strData = $strEntry;
         } elseif (is_array($strEntry)) {
-            $this->strData = $strEntry['data'];
+            $this->strData = $strEntry[self::KEY_DATA];
         } elseif (is_object($strEntry)) {
-            $this->strData =  $strEntry->data;
+            $this->strData = $strEntry->{self::KEY_DATA};
         } elseif (false === $strEntry) {
             $this->strData = false;
         } else {
