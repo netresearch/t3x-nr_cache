@@ -110,6 +110,16 @@ class Backend_Couchbase
     public $bCacheExceptions = false;
 
     /**
+     * @var string Last fetched cache entry identifier.
+     */
+    protected $strLastIdentifierFetched = '';
+
+    /**
+     * @var string Last fetched cache entry.
+     */
+    protected $strData = null;
+
+    /**
      * Constructs this backend
      *
      * @param string $context   FLOW3's application context
@@ -373,6 +383,9 @@ class Backend_Couchbase
         );
 
         if ($strCas) {
+            if ($this->strLastIdentifierFetched === $strEntryIdentifier) {
+                $this->strData = null;
+            }
             return true;
         };
 
@@ -393,6 +406,12 @@ class Backend_Couchbase
      */
     public function get($strEntryIdentifier)
     {
+        if ($this->strLastIdentifierFetched === $strEntryIdentifier
+            && $this->strData !== null
+        ) {
+            return $this->strData;
+        }
+
         try {
             $strEntry = $this->couchbase->get(
                 $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
@@ -404,13 +423,13 @@ class Backend_Couchbase
         }
 
         if (is_string($strEntry)) {
-            $strData = $strEntry;
+            $this->strData = $strEntry;
         } elseif (is_array($strEntry)) {
-            $strData = $strEntry['data'];
+            $this->strData = $strEntry['data'];
         } elseif (is_object($strEntry)) {
-            $strData = $strEntry->data;
+            $this->strData =  $strEntry->data;
         } elseif (false === $strEntry) {
-            $strData = false;
+            $this->strData = false;
         } else {
             var_dump($strEntry);
             exit;
@@ -420,7 +439,8 @@ class Backend_Couchbase
             return $this->getSplittedEntry($strData, $strEntryIdentifier);
         }
 
-        return $strData;
+
+        return $this->strData;
     }
 
 
