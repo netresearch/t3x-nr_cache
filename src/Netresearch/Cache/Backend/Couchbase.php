@@ -215,7 +215,7 @@ class Backend_Couchbase
         }
 
         $this->couchbase->setOption(
-            COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_FASTLZ
+            COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_NONE
         );
         //$this->couchbase->setOption(
         //    COUCHBASE_OPT_IGNOREFLAGS, false
