@@ -82,14 +82,6 @@ class Backend_Couchbase
     protected $arServers = array();
 
     /**
-     * A prefix to seperate stored data from other data possibly stored in the
-     * couchbase.
-     *
-     * @var string
-     */
-    protected $strIdentifierPrefix = '';
-
-    /**
      * @var string Bucket name.
      */
     protected $strBucket = 'default';
@@ -140,10 +132,6 @@ class Backend_Couchbase
                 'order to use the Couchbase backend.',
                 1213987706
             );
-        }
-
-        if (! empty($arOptions['identifier_prefix']) ) {
-            $this->strIdentifierPrefix = $arOptions['identifier_prefix'];
         }
 
         parent::__construct($context, $arOptions);
@@ -221,7 +209,7 @@ class Backend_Couchbase
         //    COUCHBASE_OPT_IGNOREFLAGS, false
         //);
         $this->couchbase->setOption(
-            COUCHBASE_OPT_PREFIX_KEY, $this->strIdentifierPrefix
+            COUCHBASE_OPT_PREFIX_KEY, $this->cache->getIdentifier()
         );
         $this->couchbase->setOption(
             COUCHBASE_OPT_SERIALIZER, COUCHBASE_SERIALIZER_JSON
@@ -325,10 +313,9 @@ class Backend_Couchbase
     private function store(
         $strEntryIdentifier, $strData, $nLifetime, array $arTags
     ) {
-        $strEntryIdentifier = $this->cache->getIdentifier() . '::'
-            . self::IDENT_DATA_PREFIX . $strEntryIdentifier;
+        $strEntryIdentifier = self::IDENT_DATA_PREFIX . $strEntryIdentifier;
 
-        $strKey = $this->strIdentifierPrefix . $strEntryIdentifier;
+        $strKey = $this->cache->getIdentifier() . $strEntryIdentifier;
 
         if (strlen($strKey) > self::MAX_KEY_SIZE) {
             throw new \InvalidArgumentException(
@@ -411,8 +398,7 @@ class Backend_Couchbase
         ) {
             try {
                 $this->data = $this->couchbase->get(
-                    $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
-                    . $strEntryIdentifier
+                    self::IDENT_DATA_PREFIX . $strEntryIdentifier
                 );
             } catch (\Exception $e) {
                 // we just ignore any error here - just no caching
@@ -490,9 +476,7 @@ class Backend_Couchbase
     {
         try {
             $result = $this->couchbase->get(
-                $this->cache->getIdentifier() . '::' . self::TAG_INDEX_PREFIX
-                . $strTag,
-                null, $strCas
+                self::TAG_INDEX_PREFIX . $strTag, null, $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -597,7 +581,7 @@ class Backend_Couchbase
     protected function setTagIndex(
         $strTag, array $arIdentifiers = null, $strCas = ''
     ) {
-        $strPreFix = $this->cache->getIdentifier() . '::' . self::TAG_INDEX_PREFIX;
+        $strPreFix = self::TAG_INDEX_PREFIX;
         if (strpos($strTag, $strPreFix) !== 0) {
             $strTag = $strPreFix . $strTag;
         }
@@ -625,7 +609,7 @@ class Backend_Couchbase
     protected function setIdentifierIndex(
         $strEntryIdentifier, array $arTags = null, $strCas = ''
     ) {
-        $strPreFix = $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX;
+        $strPreFix = self::IDENT_INDEX_PREFIX;
         if (strpos($strEntryIdentifier, $strPreFix) !== 0) {
             $strEntryIdentifier = $strPreFix . $strEntryIdentifier;
         }
@@ -655,9 +639,7 @@ class Backend_Couchbase
         try {
             // Get tags for this identifier
             $arTags = $this->couchbase->getAndLock(
-                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
-                . $strEntryIdentifier,
-                $strCas
+                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
             );
 
             if (is_array($arTags)) {
@@ -666,9 +648,7 @@ class Backend_Couchbase
 
             // Clear reverse tag index for this identifier
             $this->couchbase->delete(
-                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
-                . $strEntryIdentifier,
-                $strCas
+                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -720,8 +700,7 @@ class Backend_Couchbase
         $arIds = array();
 
         foreach ($arTags as $strTag) {
-            $arIds[] = $this->cache->getIdentifier() . '::'
-                . self::TAG_INDEX_PREFIX . $strTag;
+            $arIds[] = self::TAG_INDEX_PREFIX . $strTag;
         }
 
         return $this->couchbase->getAndLockMulti($arIds, $arCas);
@@ -743,9 +722,7 @@ class Backend_Couchbase
     {
         try {
             $result = $this->couchbase->get(
-                $this->cache->getIdentifier() . '::' . self::IDENT_INDEX_PREFIX
-                . $strIdentifier,
-                $strCas
+                self::IDENT_INDEX_PREFIX . $strIdentifier, $strCas
             );
         } catch (\Exception $e) {
             var_dump($e);
@@ -820,7 +797,7 @@ class Backend_Couchbase
      */
     public function setCacheDirectory($strPath)
     {
-        $this->strIdentifierPrefix = str_replace(PATH_site, '', $strPath);
+        // dummy method
     }
 
 
