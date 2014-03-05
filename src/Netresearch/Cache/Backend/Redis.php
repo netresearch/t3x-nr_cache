@@ -56,5 +56,47 @@ class Backend_Redis
             'nrcache://' . $this->cacheIdentifier . '/' . $entryIdentifier
         );
     }
+
+
+
+    /**
+     * Returns file/url style stats.
+     *
+     * @param string $strIdentifier An identifier which describes the cache
+     *                              entry to load
+     *
+     * @return array
+     */
+    public function stat($strIdentifier)
+    {
+        die(__METHOD__ . ' not implemented yet');
+
+        $this->couchbase->observe($strIdentifier, '', $arDetails);
+
+
+        $arStat = array(
+            'dev'     => 0, //Gerätenummer
+            'ino'     => 0, //Inode-Nummer *
+            'mode'    => 0, //Inode-Schutzmodus
+            'nlink'   => 0, //Anzahl der Links
+            'uid'     => 0, //userid des Besitzers *
+            'gid'     => 0, //groupid des Besitzers *
+            'rdev'    => 0, //Gerätetyp, falls Inode-Gerät
+            'size'    => strlen($strEntry), //Größe in Bytes
+            'atime'   => '', //Zeitpunkt des letzten Zugriffs (Unix-Timestamp)
+            'mtime'   => '', //Zeitpunkt der letzten Änderung (Unix-Timestamp)
+            'ctime'   => '', //Zeitpunkt der letzten Inode-Änderung (Unix-Timestamp)
+            'blksize' => -1, //Blockgröße des Dateisystem-I/O **
+            'blocks'  => -1, //Anzahl der zugewiesenen 512-Byte-Blöcke **
+        );
+
+        if (null === $strEntry) {
+            return false;
+        }
+
+        return $arStat;
+
+        var_dump($arDetails);
+    }
 }
 ?>

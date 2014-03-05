@@ -881,5 +881,55 @@ class Backend_Couchbase
             'nrcache://' . $this->cacheIdentifier . '/' . $strIdentifier
         );
     }
+
+
+
+    /**
+     * Returns file/url style stats.
+     *
+     * $arStat = array(
+     * 'dev'     => Gerätenummer
+     * 'ino'     => Inode-Nummer *
+     * 'mode'    => Inode-Schutzmodus
+     * 'nlink'   => Anzahl der Links
+     * 'uid'     => userid des Besitzers *
+     * 'gid'     => groupid des Besitzers *
+     * 'rdev'    => Gerätetyp, falls Inode-Gerät
+     * 'size'    => Größe in Bytes
+     * 'atime'   => Zeitpunkt des letzten Zugriffs (Unix-Timestamp)
+     * 'mtime'   => Zeitpunkt der letzten Änderung (Unix-Timestamp)
+     * 'ctime'   => Zeitpunkt der letzten Inode-Änderung (Unix-Timestamp)
+     * 'blksize' => Blockgröße des Dateisystem-I/O **
+     * 'blocks'  => Anzahl der zugewiesenen 512-Byte-Blöcke **
+     *
+     * @param string $strIdentifier An identifier which describes the cache
+     *                              entry to load
+     *
+     * @return array
+     */
+    public function stat($strIdentifier)
+    {
+        $this->load($strIdentifier);
+
+        if (false === $this->has($strIdentifier)) {
+            return false;
+        }
+
+        return array(
+            'dev'     => 0,
+            'ino'     => 0,
+            'mode'    => 0,
+            'nlink'   => 0,
+            'uid'     => 0,
+            'gid'     => 0,
+            'rdev'    => 0,
+            'size'    => $this->data->{self::KEY_SIZE},
+            'atime'   => $this->data->{self::KEY_TIME},
+            'mtime'   => $this->data->{self::KEY_TIME},
+            'ctime'   => $this->data->{self::KEY_TIME},
+            'blksize' => -1,
+            'blocks'  => -1,
+        );
+    }
 }
 ?>

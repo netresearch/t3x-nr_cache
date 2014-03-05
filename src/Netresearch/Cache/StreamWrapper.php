@@ -18,6 +18,7 @@ namespace Netresearch\Cache;
  * Class Netresearch_StreamWrapper_Couchbase
  *
  * @see http://de2.php.net/manual/de/class.streamwrapper.php
+ * @see https://github.com/aws/aws-sdk-php/blob/master/src/Aws/S3/StreamWrapper.php
  */
 class StreamWrapper
 {
@@ -38,6 +39,25 @@ class StreamWrapper
      * @var bool Flag to mark whether the stream wrapper is registered
      */
     protected static $bisRegistered = false;
+
+    /**
+     * @var array Stats for a writable directory
+     */
+    protected static $arStatWritableDirectory = array(
+        'dev'     => 0,
+        'ino'     => 0,
+        'mode'    => 0040777,
+        'nlink'   => 0,
+        'uid'     => 0,
+        'gid'     => 0,
+        'rdev'    => -1,
+        'size'    => 0,
+        'atime'   => 0,
+        'mtime'   => 0,
+        'ctime'   => 0,
+        'blksize' => -1,
+        'blocks'  => -1,
+    );
 
     /**
      * Register this stream wrapper.
@@ -163,7 +183,9 @@ class StreamWrapper
      */
     function stream_write($data)
     {
-        die (__METHOD__  . ' not implemented yet.');
+        $this->set($data);
+
+        return strlen($data);
     }
 
 
@@ -412,15 +434,17 @@ class StreamWrapper
      */
     public function stream_stat()
     {
-        $strEntry = $this->get(
-            $this->strIdentifier
-        );
-
-        if (null === $strEntry) {
+        if (false === $this->istCacheValid()) {
+            // cache does not exists - so all stats fail too
             return false;
         }
 
-        return array();
+        if (empty($this->strIdentifier)) {
+            // stat for nrcache://cache/' - is always valid
+            return true;
+        }
+
+        return $this->cache()->stat($this->strIdentifier);
     }
 
 
@@ -439,14 +463,20 @@ class StreamWrapper
 
 
     /**
-     * @param string $path
+     * @param string $strPath
      *
      * @return bool
      */
-    public function unlink($path)
+    public function unlink($strPath)
     {
-        die (__METHOD__  . ' not implemented yet.');
-        return true;
+        $this->parseUrl($strPath);
+
+        if (empty($this->strIdentifier)) {
+            // deleting directory - always true
+            return true;
+        }
+
+        return $this->cache()->remove($this->strIdentifier);
     }
 
 
@@ -459,15 +489,23 @@ class StreamWrapper
      */
     public function url_stat($strPath, $flags)
     {
+        if ($flags & STREAM_URL_STAT_QUIET) {
+            // quiet
+        }
+
         $this->parseUrl($strPath);
 
-        $strEntry = $this->get();
-
-        if (null === $strEntry) {
+        if (false === $this->istCacheValid()) {
+            // cache does not exists - so all stats fail too
             return false;
         }
 
-        return array();
+        if (empty($this->strIdentifier)) {
+            // stat for nrcache://cache/' - is always valid
+            return self::$arStatWritableDirectory;
+        }
+
+        return $this->cache()->stat($this->strIdentifier);
     }
 
 
@@ -495,6 +533,22 @@ class StreamWrapper
 
 
     /**
+     * Write file content to the cache.
+     *
+     * @param string $strContent File content.
+     *
+     * @return void
+     */
+    private function set($strContent)
+    {
+        $this->cache()->set(
+            $this->strIdentifier, $strContent
+        );
+    }
+
+
+
+    /**
      * Returns cache frontend controller.
      *
      * @return \t3lib_cache_frontend_StringFrontend
@@ -511,6 +565,23 @@ class StreamWrapper
         $this->cache = $typo3CacheManager->getCache($this->strCache);
 
         return $this->cache;
+    }
+
+
+
+    /**
+     * Returns true if cache is valid and can be accessed.
+     *
+     * @return bool
+     */
+    private function istCacheValid()
+    {
+        try {
+            $this->cache();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
 ?>

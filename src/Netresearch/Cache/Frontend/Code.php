@@ -37,5 +37,20 @@ class Frontend_Code
             'nrcache://' . $this->identifier . '/' . $entryIdentifier
         );
     }
+
+
+
+    /**
+     * Returns file/url style stats.
+     *
+     * @param string $strIdentifier An identifier which describes the cache
+     *                              entry to load
+     *
+     * @return array
+     */
+    public function stat($strIdentifier)
+    {
+        return $this->backend->stat($strIdentifier);
+    }
 }
 ?>
