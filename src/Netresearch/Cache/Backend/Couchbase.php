@@ -120,9 +120,9 @@ class Backend_Couchbase
     protected $strLastIdentifierFetched = '';
 
     /**
-     * @var string Last fetched cache entry.
+     * @var mixed Last fetched cache entry.
      */
-    protected $strData = null;
+    protected $data = null;
 
     /**
      * Constructs this backend
@@ -354,7 +354,7 @@ class Backend_Couchbase
 
         if ($strCas) {
             if ($this->strLastIdentifierFetched === $strEntryIdentifier) {
-                $this->strData = null;
+                $this->data = $data;
             }
             return true;
         };
@@ -376,36 +376,49 @@ class Backend_Couchbase
      */
     public function get($strEntryIdentifier)
     {
-        if ($this->strLastIdentifierFetched === $strEntryIdentifier
-            && $this->strData !== null
-        ) {
-            return $this->strData;
-        }
+        $this->load($strEntryIdentifier);
 
-        try {
-            $data = $this->couchbase->get(
-                $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
-                . $strEntryIdentifier
-            );
-        } catch (\Exception $e) {
-            // we just ignore any error here - just no caching
-            return false;
-        }
-
-        if (is_string($data)) {
-            $this->strData = $data;
-        } elseif (is_array($data)) {
-            $this->strData = $data[self::KEY_DATA];
-        } elseif (is_object($data)) {
-            $this->strData = $data->{self::KEY_DATA};
-        } elseif (false === $data) {
-            $this->strData = false;
+        if (is_string($this->data)) {
+            $data = $this->data;
+        } elseif (is_array($this->data)) {
+            $data = $this->data[self::KEY_DATA];
+        } elseif (is_object($this->data)) {
+            $data = $this->data->{self::KEY_DATA};
+        } elseif (false === $this->data) {
+            $data = false;
         } else {
-            var_dump($data);
+            var_dump($this->data);
             exit;
         }
 
-        return $this->strData;
+        return $data;
+    }
+
+
+
+    /**
+     * Loads entry from cache.
+     *
+     * @param string $strEntryIdentifier An identifier which describes the cache
+     *                                   entry to load
+     *
+     * @return void
+     */
+    protected function load($strEntryIdentifier)
+    {
+        if ($this->strLastIdentifierFetched !== $strEntryIdentifier
+            || $this->data === null
+        ) {
+            try {
+                $this->data = $this->couchbase->get(
+                    $this->cache->getIdentifier() . '::' . self::IDENT_DATA_PREFIX
+                    . $strEntryIdentifier
+                );
+            } catch (\Exception $e) {
+                // we just ignore any error here - just no caching
+                $this->data = false;
+            }
+        }
     }
 
 
