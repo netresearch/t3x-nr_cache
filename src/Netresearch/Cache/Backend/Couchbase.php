@@ -209,9 +209,6 @@ class Backend_Couchbase
         //    COUCHBASE_OPT_IGNOREFLAGS, false
         //);
         $this->couchbase->setOption(
-            COUCHBASE_OPT_PREFIX_KEY, $this->cache->getIdentifier()
-        );
-        $this->couchbase->setOption(
             COUCHBASE_OPT_SERIALIZER, COUCHBASE_SERIALIZER_JSON
         );
         //$this->couchbase->setOption(
@@ -229,6 +226,23 @@ class Backend_Couchbase
             }
             self::$bFlushed = true;
         }
+    }
+
+
+
+    /**
+     * Sets a reference to the cache frontend which uses this backend
+     *
+     * @param \t3lib_cache_frontend_Frontend $cache The frontend for this backend
+     *
+     * @return void
+     */
+    public function setCache(\t3lib_cache_frontend_Frontend $cache)
+    {
+        parent::setCache($cache);
+        $this->couchbase->setOption(
+            COUCHBASE_OPT_SERIALIZER, $this->cacheIdentifier
+        );
     }
 
 
@@ -270,7 +284,7 @@ class Backend_Couchbase
 
         try {
             $arTags[] = $this->getInstanceIdentifier();
-            $arTags[] = $this->cache->getIdentifier();
+            $arTags[] = $this->cacheIdentifier;
             $arTags = array_unique($arTags);
 
             $bSuccess = $this->store(
@@ -315,7 +329,7 @@ class Backend_Couchbase
     ) {
         $strEntryIdentifier = self::IDENT_DATA_PREFIX . $strEntryIdentifier;
 
-        $strKey = $this->cache->getIdentifier() . $strEntryIdentifier;
+        $strKey = $this->cacheIdentifier . $strEntryIdentifier;
 
         if (strlen($strKey) > self::MAX_KEY_SIZE) {
             throw new \InvalidArgumentException(
