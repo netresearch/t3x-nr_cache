@@ -69,10 +69,9 @@ class Backend_Redis
      */
     public function stat($strIdentifier)
     {
-        die(__METHOD__ . ' not implemented yet');
-
-        $this->couchbase->observe($strIdentifier, '', $arDetails);
-
+        if (false === $this->has($strIdentifier)) {
+            return false;
+        }
 
         $arStat = array(
             'dev'     => 0, //Gerätenummer
@@ -83,20 +82,14 @@ class Backend_Redis
             'gid'     => 0, //groupid des Besitzers *
             'rdev'    => 0, //Gerätetyp, falls Inode-Gerät
             'size'    => strlen($strEntry), //Größe in Bytes
-            'atime'   => '', //Zeitpunkt des letzten Zugriffs (Unix-Timestamp)
-            'mtime'   => '', //Zeitpunkt der letzten Änderung (Unix-Timestamp)
-            'ctime'   => '', //Zeitpunkt der letzten Inode-Änderung (Unix-Timestamp)
+            'atime'   => time(), //Zeitpunkt des letzten Zugriffs (Unix-Timestamp)
+            'mtime'   => time(), //Zeitpunkt der letzten Änderung (Unix-Timestamp)
+            'ctime'   => time(), //Zeitpunkt der letzten Inode-Änderung (Unix-Timestamp)
             'blksize' => -1, //Blockgröße des Dateisystem-I/O **
             'blocks'  => -1, //Anzahl der zugewiesenen 512-Byte-Blöcke **
         );
 
-        if (null === $strEntry) {
-            return false;
-        }
-
         return $arStat;
-
-        var_dump($arDetails);
     }
 }
 ?>
