@@ -117,6 +117,16 @@ class Backend_Couchbase
     protected $data = null;
 
     /**
+     * @var bool Enable compression.
+     */
+    protected $bCompression = false;
+
+    /**
+     * @var bool Flush whole bucket instead of flush by tag.
+     */
+    protected $bFlushBucket = false;
+
+    /**
      * Constructs this backend
      *
      * @param string $context   FLOW3's application context
@@ -165,15 +175,7 @@ class Backend_Couchbase
      */
     protected function setCompression($bUseCompression)
     {
-        if (true === $bUseCompression) {
-            $this->couchbase->setOption(
-                COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_FASTLZ
-            );
-        } else {
-            $this->couchbase->setOption(
-                COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_NONE
-            );
-        }
+        $this->bCompression = (bool) $bUseCompression;
     }
 
 
@@ -202,9 +204,16 @@ class Backend_Couchbase
             var_dump($e);
         }
 
-        $this->couchbase->setOption(
-            COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_NONE
-        );
+        if (true === $this->bCompression) {
+            $this->couchbase->setOption(
+                COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_FASTLZ
+            );
+        } else {
+            $this->couchbase->setOption(
+                COUCHBASE_OPT_COMPRESSION, COUCHBASE_COMPRESSION_NONE
+            );
+        }
+
         //$this->couchbase->setOption(
         //    COUCHBASE_OPT_IGNOREFLAGS, false
         //);
@@ -214,18 +223,6 @@ class Backend_Couchbase
         //$this->couchbase->setOption(
         //    COUCHBASE_OPT_VOPTS_PASSTHROUGH, false
         //);
-
-        if (isset($_REQUEST['clear_cache']) && false === self::$bFlushed) {
-            try {
-                // flush all entries for this identifier
-                $this->flush();
-                // flush whole couchbase
-                //$this->couchbase->flush();
-            } catch (\Exception $e) {
-                var_dump($e);
-            }
-            self::$bFlushed = true;
-        }
     }
 
 
@@ -241,8 +238,20 @@ class Backend_Couchbase
     {
         parent::setCache($cache);
         $this->couchbase->setOption(
-            COUCHBASE_OPT_SERIALIZER, $this->cacheIdentifier
+            COUCHBASE_OPT_PREFIX_KEY, $this->cacheIdentifier
         );
+
+        // we can not do this earlier - as we do not have the cache identifier
+        // at any earlier stage
+        if (isset($_REQUEST['clear_cache']) && false === self::$bFlushed) {
+            try {
+                // flush all entries for this identifier
+                $this->flush();
+            } catch (\Exception $e) {
+                var_dump($e);
+            }
+            self::$bFlushed = true;
+        }
     }
 
 
@@ -283,9 +292,14 @@ class Backend_Couchbase
         }
 
         try {
-            $arTags[] = $this->getInstanceIdentifier();
             $arTags[] = $this->cacheIdentifier;
             $arTags = array_unique($arTags);
+
+            \t3lib_div::devLog(
+                'Write tags for ' . $this->cacheIdentifier . '/' . $strEntryIdentifier
+                . ': ' . implode(',', $arTags),
+                'nr_cache'
+            );
 
             $bSuccess = $this->store(
                 $strEntryIdentifier, $strData, $nLifetime, $arTags
@@ -293,6 +307,7 @@ class Backend_Couchbase
 
             if ($bSuccess === true) {
                 $this->removeIdentifierFromAllTags($strEntryIdentifier);
+                $this->setIdentifierIndex($strEntryIdentifier, $arTags);
                 $this->addIdentifierToTags($strEntryIdentifier, $arTags);
             } else {
                 throw new \t3lib_cache_Exception(
@@ -301,12 +316,13 @@ class Backend_Couchbase
                 );
             }
         } catch (\Exception $exception) {
-            var_Dump($exception);
-            exit;
             \t3lib_div::sysLog(
-                'Memcache: could not set value. Reason: ' . $exception->getMessage(),
-                'Core',
-                \t3lib_div::SYSLOG_SEVERITY_WARNING
+                'Could not set value. Reason: ' . $exception->getMessage(),
+                'nr_cache',
+                \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                array(
+                    'exception' => $exception,
+                )
             );
         }
     }
@@ -322,22 +338,13 @@ class Backend_Couchbase
      * @param array   $arTags             Tags for cache entry
      *
      * @return bool
-     * @throws \InvalidArgumentException
      */
     private function store(
         $strEntryIdentifier, $strData, $nLifetime, array $arTags
     ) {
         $strEntryIdentifier = self::IDENT_DATA_PREFIX . $strEntryIdentifier;
 
-        $strKey = $this->cacheIdentifier . $strEntryIdentifier;
-
-        if (strlen($strKey) > self::MAX_KEY_SIZE) {
-            throw new \InvalidArgumentException(
-                'Could not set value. Key more than MAX_KEY_SIZE ('
-                . self::MAX_KEY_SIZE . ') characters (' . $strKey . ').',
-                1232969508
-            );
-        }
+        $this->requireValidKey($strEntryIdentifier);
 
         $nExpiration = $nLifetime !== null ? $nLifetime : $this->defaultLifetime;
 
@@ -361,6 +368,28 @@ class Backend_Couchbase
         };
 
         return false;
+    }
+
+
+
+    /**
+     * Ensures validness of cache entry identifier.
+     *
+     * @param string $strEntryIdentifier Cache entry identifier.
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function requireValidKey($strEntryIdentifier)
+    {
+        $strKey = $this->cacheIdentifier . $strEntryIdentifier;
+
+        if (strlen($strKey) > self::MAX_KEY_SIZE) {
+            throw new \InvalidArgumentException(
+                'Could not set value. Key more than MAX_KEY_SIZE ('
+                . self::MAX_KEY_SIZE . ') characters (' . $strKey . ').',
+                1232969508
+            );
+        }
     }
 
 
@@ -410,13 +439,20 @@ class Backend_Couchbase
         if ($this->strLastIdentifierFetched !== $strEntryIdentifier
             || $this->data === null
         ) {
+            $this->data = false;
             try {
                 $this->data = $this->couchbase->get(
                     self::IDENT_DATA_PREFIX . $strEntryIdentifier
                 );
             } catch (\Exception $e) {
-                // we just ignore any error here - just no caching
-                $this->data = false;
+                \t3lib_div::devLog(
+                    'Could not retrieve cache entry:' . $e->getMessage(),
+                    'nr_cache',
+                    \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                    array(
+                        'exception' => $e,
+                    )
+                );
             }
         }
     }
@@ -488,12 +524,21 @@ class Backend_Couchbase
      */
     public function findIdentifiersByTag($strTag, &$strCas = null)
     {
+        $result = null;
+
         try {
             $result = $this->couchbase->get(
                 self::TAG_INDEX_PREFIX . $strTag, null, $strCas
             );
         } catch (\Exception $e) {
-            var_dump($e);
+            \t3lib_div::devLog(
+                'Could not retrieve tag index:' . $e->getMessage(),
+                'nr_cache',
+                \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                array(
+                    'exception' => $e,
+                )
+            );
         }
 
         if (false === $result || null === $result) {
@@ -516,18 +561,15 @@ class Backend_Couchbase
      * Removes all cache entries of this cache.
      *
      * @return void
-     * @throws \t3lib_cache_Exception
-     * @api
      */
     public function flush()
     {
-        if (!$this->cache instanceof \t3lib_cache_frontend_Frontend) {
-            throw new \t3lib_cache_Exception(
-                'No cache frontend has been set via setCache() yet.', 1204111376
-            );
+        if ($this->bFlushBucket) {
+            // flush whole bucket
+            $this->couchbase->flush();
+        } else {
+            $this->flushByTag($this->cacheIdentifier);
         }
-
-        $this->flushByTag($this->getInstanceIdentifier());
     }
 
 
@@ -556,27 +598,41 @@ class Backend_Couchbase
      * @param string   $strEntryIdentifier Cache entry identifier
      * @param string[] $arTags             Cache entry tags
      *
+     * @todo use object for tag index Backend_Couchbase_Index
      * @return void
      */
     protected function addIdentifierToTags($strEntryIdentifier, array $arTags)
     {
-        $arDocuments = $this->getAndLockTagIndexes($arTags, $arCas);
+        $arDocuments = $this->getAndLockTagIndexes($arTags, $arCas, $bUsedLocking);
 
-        foreach ($arDocuments as $strTag => $arIdentifiers) {
-            if (! is_array($arIdentifiers)) {
-                $arIdentifiers = array(
-                    $strEntryIdentifier
+        foreach ($arTags as $strTag) {
+            $strTagIndexKey = self::TAG_INDEX_PREFIX . $strTag;
+
+            $bNeedsUpdate = false;
+
+            if (! is_array($arDocuments[$strTagIndexKey])) {
+                // insert new tag index
+                $arEntryIdentifiers = array(
+                    $strEntryIdentifier,
                 );
-            } elseif (false === array_search($strEntryIdentifier, $arIdentifiers)) {
-                $arIdentifiers[] = $strEntryIdentifier;
+                $bNeedsUpdate = true;
+                $arCas[$strTagIndexKey] = '';
             } else {
-                $arIdentifiers = false;
+                $arEntryIdentifiers = $arDocuments[$strTagIndexKey];
             }
 
-            if (false !== $arIdentifiers) {
-                $this->setTagIndex($strTag, $arIdentifiers, $arCas[$strTag]);
-            } else {
-                $this->couchbase->unlock($strTag, $arCas[$strTag]);
+            if (! in_array($strEntryIdentifier, $arEntryIdentifiers)) {
+                // update tag index
+                $arEntryIdentifiers[] = $strEntryIdentifier;
+                $bNeedsUpdate = true;
+            }
+
+            if ($bNeedsUpdate) {
+                $this->setTagIndex(
+                    $strTag, $arEntryIdentifiers, $arCas[$strTagIndexKey]
+                );
+            } elseif ($bUsedLocking) {
+                $this->couchbase->unlock($strTagIndexKey, $arCas[$strTagIndexKey]);
             }
         }
     }
@@ -595,17 +651,16 @@ class Backend_Couchbase
     protected function setTagIndex(
         $strTag, array $arIdentifiers = null, $strCas = ''
     ) {
-        $strPreFix = self::TAG_INDEX_PREFIX;
-        if (strpos($strTag, $strPreFix) !== 0) {
-            $strTag = $strPreFix . $strTag;
-        }
+        $strTagIndexKey = self::TAG_INDEX_PREFIX . $strTag;
 
         if (null === $arIdentifiers) {
-            return $this->couchbase->delete($strTag, $strCas);
+            return $this->couchbase->delete($strTagIndexKey, $strCas);
         } else {
             // cast to numeric indexed array - prevents returned as object
             $arIdentifiers = array_values($arIdentifiers);
-            return $this->couchbase->set($strTag, $arIdentifiers, 0, $strCas);
+            return $this->couchbase->set(
+                $strTagIndexKey, $arIdentifiers, 0, $strCas
+            );
         }
     }
 
@@ -616,26 +671,20 @@ class Backend_Couchbase
      *
      * @param string     $strEntryIdentifier Identifier
      * @param array|null $arTags             Tags to store in identifier index
-     * @param string     $strCas             Check and set value
      *
      * @return string
      */
     protected function setIdentifierIndex(
-        $strEntryIdentifier, array $arTags = null, $strCas = ''
+        $strEntryIdentifier, array $arTags = null
     ) {
-        $strPreFix = self::IDENT_INDEX_PREFIX;
-        if (strpos($strEntryIdentifier, $strPreFix) !== 0) {
-            $strEntryIdentifier = $strPreFix . $strEntryIdentifier;
-        }
+        $strIdentifierIndexKey = self::IDENT_INDEX_PREFIX . $strEntryIdentifier;
 
         if (null === $arTags) {
-            return $this->couchbase->delete($strEntryIdentifier, $strCas);
+            return $this->couchbase->delete($strIdentifierIndexKey);
         } else {
             // cast to numeric indexed array - prevents returned as object
             $arTags = array_values($arTags);
-            return $this->couchbase->set(
-                $strEntryIdentifier, $arTags, 0, $strCas
-            );
+            return $this->couchbase->set($strIdentifierIndexKey, $arTags);
         }
     }
 
@@ -653,7 +702,7 @@ class Backend_Couchbase
         try {
             // Get tags for this identifier
             $arTags = $this->couchbase->getAndLock(
-                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
+                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $cas
             );
 
             if (is_array($arTags)) {
@@ -662,10 +711,17 @@ class Backend_Couchbase
 
             // Clear reverse tag index for this identifier
             $this->couchbase->delete(
-                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $strCas
+                self::IDENT_INDEX_PREFIX . $strEntryIdentifier, $cas
             );
         } catch (\Exception $e) {
-            var_dump($e);
+            \t3lib_div::devLog(
+                'Could not update tag index:' . $e->getMessage(),
+                'nr_cache',
+                \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                array(
+                    'exception' => $e,
+                )
+            );
         }
     }
 
@@ -689,7 +745,7 @@ class Backend_Couchbase
             throw new \InvalidArgumentException('strlen($strEntryIdentifier) < 1');
         }
 
-        $arDocuments = $this->getAndLockTagIndexes($arTags, $arCas);
+        $arDocuments = $this->getAndLockTagIndexes($arTags, $arCas, $bUsedLocking);
 
         foreach ($arDocuments as $strTag => $arIdentifiers) {
             if (is_array($arIdentifiers)) {
@@ -709,15 +765,56 @@ class Backend_Couchbase
 
 
 
-    protected function getAndLockTagIndexes($arTags, &$arCas)
+    protected function getAndLockTagIndexes($arTags, &$arCas, &$bUsedLocking)
     {
-        $arIds = array();
+        $arTagIndexKeys = array();
 
         foreach ($arTags as $strTag) {
-            $arIds[] = self::TAG_INDEX_PREFIX . $strTag;
+            $arTagIndexKeys[] = self::TAG_INDEX_PREFIX . $strTag;
         }
 
-        return $this->couchbase->getAndLockMulti($arIds, $arCas);
+        $arTagIndexes = array();
+        $arDocuments  = array();
+
+        try {
+            $arDocuments = $this->couchbase->getAndLockMulti(
+                $arTagIndexKeys, $arCas
+            );
+            $bUsedLocking = true;
+        } catch (\Exception $e) {
+            // ok, we ignore this - this will not really hurt
+            $bUsedLocking = false;
+            \t3lib_div::devLog(
+                'Could not retrieve cache entries:' . $e->getMessage(),
+                'nr_cache',
+                \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                array(
+                    'exception' => $e,
+                )
+            );
+            // but we try again without locking
+            try {
+                $arDocuments = $this->couchbase->getMulti(
+                    $arTagIndexKeys, $arCas
+                );
+            } catch (\Exception $e) {
+                // ok, we ignore this - this will not really hurt
+                \t3lib_div::devLog(
+                    'Could not retrieve cache entries:' . $e->getMessage(),
+                    'nr_cache',
+                    \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                    array(
+                        'exception' => $e,
+                    )
+                );
+            }
+        }
+
+        foreach ($arDocuments as $strKey => $arIndex) {
+            $arTagIndexes[$strKey] = $arIndex;
+        }
+
+        return $arTagIndexes;
     }
 
 
@@ -734,12 +831,21 @@ class Backend_Couchbase
      */
     protected function findTagsByIdentifier($strIdentifier, &$strCas = null)
     {
+        $result = null;
+
         try {
             $result = $this->couchbase->get(
                 self::IDENT_INDEX_PREFIX . $strIdentifier, $strCas
             );
         } catch (\Exception $e) {
-            var_dump($e);
+            \t3lib_div::devLog(
+                'Could not retrieve identifier index:' . $e->getMessage(),
+                'nr_cache',
+                \t3lib_div::SYSLOG_SEVERITY_WARNING,
+                array(
+                    'exception' => $e,
+                )
+            );
         }
 
         if (false === $result || null === $result) {
@@ -766,19 +872,6 @@ class Backend_Couchbase
      */
     public function collectGarbage()
     {
-    }
-
-
-
-    /**
-     * Returns instance identifier cache tag - usually used for tagging every
-     * cache entry generated by this cache configuration.
-     *
-     * @return string Instance identifier tag
-     */
-    private function getInstanceIdentifier()
-    {
-        return 'COUCHBASE';
     }
 
 
@@ -921,6 +1014,12 @@ class Backend_Couchbase
             'blksize' => -1,
             'blocks'  => -1,
         );
+    }
+
+
+    public function setFlushBucket($bFlushBucket)
+    {
+        $this->bFlushBucket = (bool) $bFlushBucket;
     }
 }
 ?>

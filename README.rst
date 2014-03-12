@@ -129,6 +129,11 @@ Name of the used caching configuration is 'nr_cache_session'::
  $arCacheCfg['nr_cache_session']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
  $arCacheCfg['nr_cache_session']['options']['database'] = 3;
 
+Smarty
+======
+
+$smarty->create_dirs = false
+
 Referenzen
 ==========
 
