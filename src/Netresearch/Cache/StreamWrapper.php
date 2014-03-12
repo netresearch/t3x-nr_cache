@@ -284,7 +284,7 @@ class StreamWrapper
      */
     public function dir_closedir()
     {
-        die (__METHOD__  . ' not implemented yet.');
+        $this->arEntries = null;
         return true;
     }
 
@@ -298,7 +298,12 @@ class StreamWrapper
      */
     public function dir_opendir($strPath , $nOptions)
     {
-        die (__METHOD__  . ' not implemented yet.');
+        $this->parseUrl($strPath);
+
+        $this->arEntries = $this->cache()->getBackend()->findIdentifiersByTag(
+            $this->cache()->getIdentifier()
+        );
+
         return true;
     }
 
@@ -309,8 +314,14 @@ class StreamWrapper
      */
     public function dir_readdir()
     {
-        die (__METHOD__  . ' not implemented yet.');
-        return '';
+        var_dump($this->arEntries);
+        $entry = array_shift($this->arEntries);
+
+        if (null === $entry) {
+            return false;
+        } else {
+            return $entry;
+        }
     }
 
 
