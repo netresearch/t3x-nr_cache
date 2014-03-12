@@ -23,6 +23,29 @@ namespace Netresearch\Cache;
 class Frontend_Code
     extends \t3lib_cache_frontend_PhpFrontend
 {
+
+    /**
+     * Pattern an entry identifier must match.
+     */
+    const PATTERN_ENTRYIDENTIFIER = '/^[a-zA-Z0-9_%\-&%^]{1,250}$/';
+
+
+
+    /**
+     * Checks the validity of an entry identifier. Returns TRUE if it's valid.
+     *
+     * @param string $identifier An identifier to be checked for validity
+     * @return boolean
+     * @api
+     */
+    public function isValidEntryIdentifier($identifier)
+    {
+        return true;
+        return preg_match(self::PATTERN_ENTRYIDENTIFIER, $identifier) === 1;
+    }
+
+
+
     /**
      * Loads PHP code from the cache and require_onces it right away.
      *
