@@ -24,12 +24,15 @@ $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php']
     = t3lib_extMgm::extPath('nr_cache') . 'src/Netresearch/Cache/Session.php';
 
 
-$arCacheCfg['nr_cache_session'] = $arCacheCfg['default'];
-$arCacheCfg['nr_cache_session']['frontend']
-    = '\t3lib_cache_frontend_VariableFrontend';
-if (isset($arCacheCfg['nr_cache_streamwrapper']['options']['database'])) {
-    $arCacheCfg['nr_cache_session']['options']['database'] = 3;
+if (empty($arCacheCfg['nr_cache_session'])) {
+    $arCacheCfg['nr_cache_session'] = $arCacheCfg['default'];
 }
+
+if (empty($arCacheCfg['nr_cache_session']['frontend'])) {
+    $arCacheCfg['nr_cache_session']['frontend']
+        = '\t3lib_cache_frontend_VariableFrontend';
+}
+
 $arCacheCfg['nr_cache_session']['options']['defaultLifetime']
     = $TYPO3_CONF_VARS['FE']['sessionDataLifetime'];
 
