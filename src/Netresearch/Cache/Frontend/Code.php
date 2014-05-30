@@ -26,8 +26,11 @@ class Frontend_Code
 
     /**
      * Pattern an entry identifier must match.
+     * HipHip fails here, when overwriting a class constant
+     *
+     * const PATTERN_ENTRYIDENTIFIER = '/^[a-zA-Z0-9_%\-&%^]{1,250}$/';
      */
-    const PATTERN_ENTRYIDENTIFIER = '/^[a-zA-Z0-9_%\-&%^]{1,250}$/';
+    static $PATTERN_ENTRYIDENTIFIER = '/^[a-zA-Z0-9_%\-&%^]{1,250}$/';
 
 
 
