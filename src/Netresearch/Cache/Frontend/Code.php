@@ -44,7 +44,7 @@ class Frontend_Code
     public function isValidEntryIdentifier($identifier)
     {
         return true;
-        return preg_match(self::PATTERN_ENTRYIDENTIFIER, $identifier) === 1;
+        return \preg_match(self::$PATTERN_ENTRYIDENTIFIER, $identifier) === 1;
     }
 
 
