@@ -213,5 +213,21 @@ class Frontend_FunctionResult
         }
         return $entries;
     }
+
+
+
+    /**
+     * Set Callback methods for cache
+     *
+     * @param string $callback like Cache_Function_NrTest->registeredCallback
+     * @param array  $arParams parameter for callback method
+     *
+     * @return void
+     */
+    public function setCallbacks($callback, $arParams)
+    {
+        return;
+        $this->arCallback[] = array($callback, $arParams);
+    }
 }
 ?>
