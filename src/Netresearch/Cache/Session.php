@@ -147,7 +147,8 @@ class Session extends \tslib_feUserAuth
         }
 
         if (!$skipSessionUpdate) {
-            $this->user = $this->arMeta['ses_tstamp'] = $GLOBALS['EXEC_TIME'];
+            $this->user[$this->auth_timeout_field]
+                = $this->arMeta['ses_tstamp'] = $GLOBALS['EXEC_TIME'];
             $this->sesData_change = true;
             $this->storeSessionData();
         }
