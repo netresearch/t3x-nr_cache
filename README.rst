@@ -25,7 +25,7 @@ systems like Couchbase, Redis, Memcache or Amazon ElastiCache.
 
 .. BEGIN ext_emconf.php
 
-:Version live: `1.0.0 <http://urgit11.aida.de/typo3/nr_cache/tree/v1.0.0>`_
+:Version live: `1.0.1 <http://urgit11.aida.de/typo3/nr_cache/tree/v1.0.1>`_
 :Company: Netresearch GmbH & Co.KG
 :Author: | `Sebastian Mendel <~mendel.sebastian>`_
 
