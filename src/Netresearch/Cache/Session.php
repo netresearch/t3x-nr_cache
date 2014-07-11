@@ -47,11 +47,9 @@ class Session extends \tslib_feUserAuth
         /* @var \t3lib_db $TYPO3_DB */
         global $TYPO3_DB;
 
-        if ($this->writeDevLog) {
-            \t3lib_div::devLog(
-                'Create session ses_id = ' . $this->id, 'nr_cache'
-            );
-        }
+        \t3lib_div::devLog(
+            'Create session ses_id = ' . $this->id, 'nr_cache'
+        );
 
         $this->arMeta = $this->getNewSessionRecord($arTempUser);
         $this->storeSessionData();
@@ -83,14 +81,9 @@ class Session extends \tslib_feUserAuth
      */
     function fetchUserSession($skipSessionUpdate = false)
     {
-        /* @var \t3lib_db $TYPO3_DB */
-        global $TYPO3_DB;
-
-        if ($this->writeDevLog) {
-            \t3lib_div::devLog(
-                'Fetch session ses_id = ' . $this->id, 'nr_cache'
-            );
-        }
+        \t3lib_div::devLog(
+            'Fetch session ses_id = ' . $this->id, 'nr_cache'
+        );
 
         // load session
         $this->fetchSessionData();
@@ -167,11 +160,9 @@ class Session extends \tslib_feUserAuth
      */
     function logoff()
     {
-        if ($this->writeDevLog) {
-            \t3lib_div::devLog(
-                'logoff: ses_id = ' . $this->id, 'nr_cache'
-            );
-        }
+        \t3lib_div::devLog(
+            'logoff: ' . $this->id, 'nr_cache'
+        );
 
         // Release the locked records
         \t3lib_BEfunc::lockRecords();
@@ -334,6 +325,11 @@ class Session extends \tslib_feUserAuth
         }
 
         $this->sessionDataTimestamp = $GLOBALS['EXEC_TIME'];
+
+        \t3lib_div::devLog(
+            'Set session data: "' . $this->id . '"',
+            'nr_cache'
+        );
         $this->cache()->set(
             $this->id,
             array(
@@ -354,6 +350,10 @@ class Session extends \tslib_feUserAuth
      */
     public function removeSessionData()
     {
+        \t3lib_div::devLog(
+            'Drop session data: "' . $this->id . '"',
+            'nr_cache'
+        );
         $this->cache()->remove($this->id);
     }
 
