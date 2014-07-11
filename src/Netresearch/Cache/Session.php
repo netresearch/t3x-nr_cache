@@ -161,6 +161,10 @@ class Session extends \tslib_feUserAuth
      * Removes the current session record, sets the internal ->user array to a
      * blank string; Thereby the current user (if any) is effectively logged out!
      *
+     * We do not clear the session or remove its data.
+     * This would break website functionality.
+     * f. e. affiliate
+     *
      * @return	void
      */
     function logoff()
@@ -184,8 +188,6 @@ class Session extends \tslib_feUserAuth
                 }
             }
         }
-
-        $this->removeSessionData();
 
         $this->user = '';
 
@@ -320,12 +322,6 @@ class Session extends \tslib_feUserAuth
 
         if (empty($this->id)) {
             // no session id
-            return;
-        }
-
-        if (empty($this->sesData)) {
-            // Remove session-data
-            $this->removeSessionData();
             return;
         }
 
