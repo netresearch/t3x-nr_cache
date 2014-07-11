@@ -3,7 +3,7 @@
 /***************************************************************
  * Extension Manager/Repository config file for ext "nr_cache".
  *
- * Auto generated 07-07-2014 15:13
+ * Auto generated 11-07-2014 15:17
  *
  * Manual updates:
  * Only the data in the array - everything else is removed by next
@@ -39,8 +39,8 @@ $EM_CONF[$_EXTKEY] = array(
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 1,
 	'lockType' => '',
-	'version' => '1.0.2',
-	'_md5_values_when_last_written' => 'a:13:{s:9:"build.xml";s:4:"64f8";s:9:"ChangeLog";s:4:"aa28";s:16:"ext_autoload.php";s:4:"933b";s:17:"ext_localconf.php";s:4:"5711";s:10:"README.rst";s:4:"38fd";s:18:"doc/ide_helper.php";s:4:"02db";s:33:"src/Netresearch/Cache/Session.php";s:4:"eb96";s:39:"src/Netresearch/Cache/StreamWrapper.php";s:4:"5c42";s:43:"src/Netresearch/Cache/Backend/Couchbase.php";s:4:"05e9";s:39:"src/Netresearch/Cache/Backend/Redis.php";s:4:"88c4";s:39:"src/Netresearch/Cache/Frontend/Code.php";s:4:"df38";s:49:"src/Netresearch/Cache/Frontend/FunctionResult.php";s:4:"f35b";s:41:"src/Netresearch/Cache/Frontend/String.php";s:4:"9643";}',
+	'version' => '1.0.3',
+	'_md5_values_when_last_written' => 'a:13:{s:9:"build.xml";s:4:"64f8";s:9:"ChangeLog";s:4:"297f";s:16:"ext_autoload.php";s:4:"933b";s:17:"ext_localconf.php";s:4:"5711";s:10:"README.rst";s:4:"9467";s:18:"doc/ide_helper.php";s:4:"02db";s:33:"src/Netresearch/Cache/Session.php";s:4:"9e3a";s:39:"src/Netresearch/Cache/StreamWrapper.php";s:4:"5c42";s:43:"src/Netresearch/Cache/Backend/Couchbase.php";s:4:"05e9";s:39:"src/Netresearch/Cache/Backend/Redis.php";s:4:"88c4";s:39:"src/Netresearch/Cache/Frontend/Code.php";s:4:"df38";s:49:"src/Netresearch/Cache/Frontend/FunctionResult.php";s:4:"f35b";s:41:"src/Netresearch/Cache/Frontend/String.php";s:4:"9643";}',
 	'suggests' => array(
 	),
 );
