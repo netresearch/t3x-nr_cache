@@ -19,7 +19,12 @@ namespace Netresearch\Cache;
  *
  * UX class for tslib_feUserAuth to write session data in memory based backend.
  *
- * @package Netresearch\Cache
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    AGPL http://www.netresearch.de/
+ * @link       http://www.netresearch.de/
  */
 class Session extends \tslib_feUserAuth
 {
