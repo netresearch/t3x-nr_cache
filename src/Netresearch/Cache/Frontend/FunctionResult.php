@@ -1,6 +1,7 @@
 <?php
 declare(encoding = 'UTF-8');
 /**
+ * Frontend for FunctionCache
  *
  * @category   Controller
  * @package    Netresearch
@@ -44,22 +45,104 @@ class Frontend_FunctionResult
     /**
      * Calls function and stores result in cache.
      *
-     * @param mixed $callback Callback string or array
-     *
      * @return mixed
      */
-    function call($callback)
+    function call()
     {
-        $arguments = func_get_args();
-
         // generate cache id
-        $strIdentifier = md5(serialize($arguments));
+        $arguments
+            = $this->calculateCacheHashArguments(
+                func_get_args()
+            );
 
-        array_unshift($arguments, $strIdentifier);
         return call_user_func_array(array($this, 'callWithId'), $arguments);
     }
 
+    /**
+     * Returns the $arguments array with the calculated identifier
+     * as first entry of the array.
+     *
+     * @param array $arguments the callback to calculate the identifier for
+     *
+     * @return array the arguments array donated with the identifier as first
+     *               argument.
+     */
+    private function calculateCacheHashArguments($arguments)
+    {
+        // first argument in the first callback array is an object
+        // convert it to the object name
+        $strIdentifier = md5(
+            serialize(
+                $this->convertCallbackToString($arguments)
+            )
+        );
+        array_unshift($arguments, $strIdentifier);
+        return $arguments;
+    }
 
+    /**
+     * Takes the passed callback arguments and converts
+     * the first argument to its class name if its an
+     * object. e.g:
+     * Input:
+     * <code>
+     * array(
+     *   0 => array( 0 => {MyObject}, 1 => 'methodtoCall'),
+     *   1 => a second parameter
+     *   2 => a third parameter
+     * );
+     * </code>
+     *
+     * Output:
+     * <code>
+     * array(
+     *   0 => 'MyObject->methodtoCall',
+     *   1 => a second parameter
+     *   2 => a third parameter
+     * );
+     * </code>
+     *
+     * @param array $arguments the callback to convert
+     *
+     * @return array the converted array
+     *
+     * @throws Exception if the first entry of the array is
+     *                   not a string or an array.
+     */
+    private function convertCallbackToString($arguments)
+    {
+        if (is_string($arguments)) {
+            return $arguments;
+        }
+
+        if (!is_array($arguments)) {
+            throw new Exception(
+                'Unsupported Callback type!'
+                . var_export($arguments, true)
+            );
+        }
+
+        if (is_string($arguments[0])) {
+            return $arguments;
+        }
+
+        if (!is_array($arguments[0])) {
+            throw new Exception(
+                'Unsupported Callback type!'
+                . var_export($arguments, true)
+            );
+        }
+
+        // if the first argument of the callback array is an object
+        // convert it to string
+        if (is_object($arguments[0][0])) {
+            $strClassName = get_class($arguments[0][0]);
+            $strFunction = $arguments[0][1];
+            $arguments[0] = $strClassName . '->' . $strFunction;
+        }
+
+        return  $arguments;
+    }
 
     /**
      * Calls function and stores result in cache.
@@ -77,9 +160,10 @@ class Frontend_FunctionResult
         $cached_object = $this->backend->get($strIdentifier);
 
         if ($cached_object !== false) {
-            $output    = $cached_object[0];
-            $result    = $cached_object[1];
-            $callbacks = $cached_object[2];
+            $cached_object = unserialize($cached_object);
+            $output        = $cached_object[0];
+            $result        = $cached_object[1];
+            $callbacks     = $cached_object[2];
             if (is_array($callbacks)) {
                 foreach ($callbacks as $arCallbackInfo) {
                     list($callback, $arParams) = $arCallbackInfo;
@@ -140,7 +224,7 @@ class Frontend_FunctionResult
 
         $this->backend->set(
             $strIdentifier,
-            json_encode($arCacheContent),
+            serialize($arCacheContent),
             $this->arTags,
             (intval($this->nExpires) < 0 ? 0 : intval($this->nExpires))
         );

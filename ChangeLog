@@ -1,3 +1,7 @@
+2014-07-25  Tobias Hein  <tobias.hein@netresearch.de>
+
+	* TYPO-1899: tweak the cache identifier calculation -  convert objects  to their class name for identifier; use un/serialize instead of json_encode/json_decode
+
 2014-08-26  Sebastian Mendel  <sebastian.mendel@netresearch.de>
 
 	* Version: 1.2.0
