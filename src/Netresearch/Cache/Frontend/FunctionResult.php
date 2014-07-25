@@ -45,9 +45,11 @@ class Frontend_FunctionResult
     /**
      * Calls function and stores result in cache.
      *
+     * @param callable $arCallback string or array
+     *
      * @return mixed
      */
-    function call()
+    function call($arCallback)
     {
         // generate cache id
         $arguments
@@ -65,9 +67,9 @@ class Frontend_FunctionResult
      * @param array $arguments the callback to calculate the identifier for
      *
      * @return array the arguments array donated with the identifier as first
-     *               argument.
+     *               argument
      */
-    private function calculateCacheHashArguments($arguments)
+    private function calculateCacheHashArguments(array $arguments)
     {
         // first argument in the first callback array is an object
         // convert it to the object name
@@ -83,7 +85,15 @@ class Frontend_FunctionResult
     /**
      * Takes the passed callback arguments and converts
      * the first argument to its class name if its an
-     * object. e.g:
+     * object.
+     *
+     * Supporting the follwing callback constellations:
+     * - 'ClassName::FunctionName'
+     * - 'ClassName->FunctionName'
+     * - array('ClassName','FunctionName')
+     * - array(ClassObject, 'FunctionName')
+     *
+     * e.g:
      * Input:
      * <code>
      * array(
@@ -109,36 +119,55 @@ class Frontend_FunctionResult
      * @throws Exception if the first entry of the array is
      *                   not a string or an array.
      */
-    private function convertCallbackToString($arguments)
+    private function convertCallbackToString(array $arguments)
     {
-        if (is_string($arguments)) {
-            return $arguments;
-        }
-
-        if (!is_array($arguments)) {
+        // check if at least one entry exists
+        if (empty($arguments[0])) {
             throw new Exception(
-                'Unsupported Callback type!'
+                'Unsupported Callback type! '
                 . var_export($arguments, true)
             );
         }
-
+        // if its a string - its ok for the cach hash
         if (is_string($arguments[0])) {
             return $arguments;
         }
 
-        if (!is_array($arguments[0])) {
+        // if its an array we expect 2 entries
+        if (! is_array($arguments[0])
+            || empty($arguments[0][0])
+            || empty($arguments[0][1])
+        ) {
             throw new Exception(
-                'Unsupported Callback type!'
+                'Unsupported Callback type! '
+                . var_export($arguments, true)
+            );
+        }
+        // callback element can be a object or a class name
+        $mCallbackElement  = $arguments[0][0];
+        // callback should be a function
+        $strCallbackFunction = $arguments[0][1];
+
+        if (! is_array($mCallbackElement)
+            && ! is_object($mCallbackElement)
+        ) {
+            throw new Exception(
+                'Unsupported Callback type! '
+                . var_export($arguments, true)
+            );
+        }
+
+        if (! is_string($strCallbackFunction)) {
+            throw new Exception(
+                'Unsupported Callback type! '
                 . var_export($arguments, true)
             );
         }
 
         // if the first argument of the callback array is an object
         // convert it to string
-        if (is_object($arguments[0][0])) {
-            $strClassName = get_class($arguments[0][0]);
-            $strFunction = $arguments[0][1];
-            $arguments[0] = $strClassName . '->' . $strFunction;
+        if (is_object($mCallbackElement)) {
+            $arguments[0] = get_class($mCallbackElement) . '->' . $strCallbackFunction;
         }
 
         return  $arguments;
