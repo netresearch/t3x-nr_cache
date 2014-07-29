@@ -37,7 +37,7 @@ class Frontend_FunctionResult
     public $arTags = array();
 
     /**
-     * @var array Cacllbaks
+     * @var array Callbacks
      */
     public $arCallback = array();
 
@@ -87,7 +87,7 @@ class Frontend_FunctionResult
      * the first argument to its class name if its an
      * object.
      *
-     * Supporting the follwing callback constellations:
+     * Supporting the following callback constellations:
      * - 'ClassName::FunctionName'
      * - 'ClassName->FunctionName'
      * - array('ClassName','FunctionName')
@@ -97,7 +97,7 @@ class Frontend_FunctionResult
      * Input:
      * <code>
      * array(
-     *   0 => array( 0 => {MyObject}, 1 => 'methodtoCall'),
+     *   0 => array( 0 => {MyObject}, 1 => 'methodToCall'),
      *   1 => a second parameter
      *   2 => a third parameter
      * );
@@ -106,7 +106,7 @@ class Frontend_FunctionResult
      * Output:
      * <code>
      * array(
-     *   0 => 'MyObject->methodtoCall',
+     *   0 => 'MyObject->methodToCall',
      *   1 => a second parameter
      *   2 => a third parameter
      * );
@@ -124,43 +124,40 @@ class Frontend_FunctionResult
         // check if at least one entry exists
         if (empty($arguments[0])) {
             throw new Exception(
-                'Unsupported Callback type! '
-                . var_export($arguments, true)
+                'Unsupported Callback type: ' . gettype($arguments[0])
             );
         }
-        // if its a string - its ok for the cach hash
-        if (is_string($arguments[0])) {
+
+        $callback = $arguments[0];
+
+        // if its a string - its ok for the cache hash
+        if (is_string($callback)) {
             return $arguments;
         }
 
-        // if its an array we expect 2 entries
-        if (! is_array($arguments[0])
-            || empty($arguments[0][0])
-            || empty($arguments[0][1])
-        ) {
+        if (! is_array($callback)) {
             throw new Exception(
-                'Unsupported Callback type! '
-                . var_export($arguments, true)
+                'Unsupported Callback type: ' . gettype($callback)
             );
         }
-        // callback element can be a object or a class name
-        $mCallbackElement  = $arguments[0][0];
-        // callback should be a function
-        $strCallbackFunction = $arguments[0][1];
 
-        if (! is_array($mCallbackElement)
+        // callback element can be a object or a class name
+        $mCallbackElement = $callback[0];
+
+        // callback should be a function
+        $strCallbackFunction = $callback[1];
+
+        if (! is_string($mCallbackElement)
             && ! is_object($mCallbackElement)
         ) {
             throw new Exception(
-                'Unsupported Callback type! '
-                . var_export($arguments, true)
+                'Unsupported Callback typo[0]: ' . gettype($mCallbackElement)
             );
         }
 
         if (! is_string($strCallbackFunction)) {
             throw new Exception(
-                'Unsupported Callback type! '
-                . var_export($arguments, true)
+                'Unsupported Callback typo[1]: ' . gettype($strCallbackFunction)
             );
         }
 
