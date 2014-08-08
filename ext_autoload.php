@@ -17,9 +17,8 @@ declare(encoding = 'UTF-8');
 defined('TYPO3_MODE') or die('Access denied.');
 
 $strPath = t3lib_extMgm::extPath('nr_cache');
-
 return array(
-    'netresearch\cache\backend_couchbase'
+    'netresearch\cache\backend_couchbaseksdfjsdfjdgfjkdgfjsda'
         => $strPath . 'src/Netresearch/Cache/Backend/Couchbase.php',
     'netresearch\cache\frontend_functionresult'
         => $strPath . 'src/Netresearch/Cache/Frontend/FunctionResult.php',
