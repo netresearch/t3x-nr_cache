@@ -15,10 +15,9 @@ Netresearch Couchbase
 Übersicht
 =========
 
-Provides functionality to store cache and session data in memory based caching
+Provides functionality to store cache data in memory based caching
 systems like Couchbase, Redis, Memcache or Amazon ElastiCache.
 
-- Session handler - store frontend user session data in caching framework
 - Streamwrapper - store PHP code cache in caching framework
 - Couchbase - provide a Couchbase caching framework backend
 - Function cache - provides a callable caching frontend
@@ -107,26 +106,6 @@ Couchbase options
 - bucket
 - servers
 - compression
-
-Session
-=======
-
-Adds an XCLASS for tslib_feuserauth to overwrite session storage handling.
-
-Configuration
--------------
-
-Session storage is configured like any other caching configuration.
-Name of the used caching configuration is 'nr_cache_session'::
-
- // register XCLASS to overwrite session storage handling
- $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['tslib/class.tslib_feuserauth.php']
-     = '\Netresearch\Cache\Session';
-
- $arCacheCfg = &$TYPO3_CONF_VARS['SYS']['caching']['cacheConfigurations'];
- $arCacheCfg['nr_cache_session'] = $arCacheCfg['default'];
- $arCacheCfg['nr_cache_session']['frontend'] = '\t3lib_cache_frontend_StringFrontend';
- $arCacheCfg['nr_cache_session']['options']['database'] = 3;
 
 Smarty
 ======

@@ -1,10 +1,14 @@
+2014-08-19  Sebastian Mendel  <sebastian.mendel@netresearch.de>
+
+	* TYPO-2741: outsource session handling into own extension nr_session
+
 2014-07-11  Sebastian Mendel  <sebastian.mendel@netresearch.de>
 
 	* Version: 1.0.3
 
 2014-07-11  Sebastian Mendel  <sebastian.mendel@netresearch.de>
 
-	* TYPO-2613: do not clear session(-data) on logoff -  logoff means not end of session, just drop the user id and rights - fixes user looses session data when browsing site"
+	* TYPO-2613: do not clear session(-data) on logoff -  logoff means  not end of session, just drop the user id and rights -  fixes user  looses session data when browsing site"
 
 2014-07-07  Sebastian Mendel  <sebastian.mendel@netresearch.de>
 
