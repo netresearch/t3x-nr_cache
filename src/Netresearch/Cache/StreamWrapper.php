@@ -6,39 +6,55 @@ declare(encoding = 'UTF-8');
  * @package    Netresearch
  * @subpackage Cache
  * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
- * @license    AGPL http://www.netresearch.de/
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  * @link       http://www.netresearch.de/
- * @api
- * @scope       prototype
  */
 
-
 namespace Netresearch\Cache;
+
 /**
  * Class Netresearch_StreamWrapper_Couchbase
  *
- * @see http://de2.php.net/manual/de/class.streamwrapper.php
- * @see https://github.com/aws/aws-sdk-php/blob/master/src/Aws/S3/StreamWrapper.php
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ * @link       http://www.netresearch.de/
+ * @see        http://de2.php.net/manual/de/class.streamwrapper.php
+ * @see        https://github.com/aws/aws-sdk-php/blob/master/src/Aws/S3/StreamWrapper.php
  */
 class StreamWrapper
 {
     /**
      * @var integer Current string/data pointer offset position.
      */
-    var $nPosition = 0;
+    protected $nPosition = 0;
 
-    var $strCache = '';
-    var $strIdentifier = '';
+    /**
+     * @var string
+     */
+    protected $strCache = '';
+
+    /**
+     * @var string
+     */
+    protected $strIdentifier = '';
 
     /**
      * @var \t3lib_cache_frontend_StringFrontend
      */
-    var $cache = null;
+    protected $cache = null;
 
     /**
      * @var bool Flag to mark whether the stream wrapper is registered
      */
     protected static $bisRegistered = false;
+
+    /**
+     * @var string[] holds list of identifiers in current "directory"
+     */
+    protected $arEntries = array();
 
     /**
      * @var array Stats for a writable directory
@@ -58,6 +74,8 @@ class StreamWrapper
         'blksize' => -1,
         'blocks'  => -1,
     );
+
+
 
     /**
      * Register this stream wrapper.
@@ -314,7 +332,6 @@ class StreamWrapper
      */
     public function dir_readdir()
     {
-        var_dump($this->arEntries);
         $entry = array_shift($this->arEntries);
 
         if (null === $entry) {

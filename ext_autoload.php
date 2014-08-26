@@ -2,16 +2,16 @@
 declare(encoding = 'UTF-8');
 
 /**
- * AIDA RESCO extension autoloader.
+ * NR Cache extension autoloader.
  *
  * PHP version 5
  *
- * @category   Aida
- * @package    Resco
- * @subpackage Plugin
- * @author     Andre Hähnel <andre.haehnel@netresearch.de>
- * @license    http://www.aida.de AIDA Copyright
- * @link       http://www.aida.de
+ * @category   Configuration
+ * @package    Netresearch
+ * @subpackage CachingFramework
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ * @link       http://www.netresearch.de/
  */
 
 defined('TYPO3_MODE') or die('Access denied.');

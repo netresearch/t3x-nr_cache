@@ -1,16 +1,14 @@
 <?php
 declare(encoding = 'UTF-8');
 /**
-*
-* @category   Controller
-* @package    Netresearch
-* @subpackage Cache
-* @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
-* @license    AGPL http://www.netresearch.de/
-* @link       http://www.netresearch.de/
-* @api
-* @scope       prototype
-*/
+ *
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ * @link       http://www.netresearch.de/
+ */
 
 namespace Netresearch\Cache;
 
@@ -19,18 +17,16 @@ namespace Netresearch\Cache;
  *
  * Cached code can be included like any other PHP source file.
  *
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ * @link       http://www.netresearch.de/
  */
 class Frontend_String
     extends \t3lib_cache_frontend_StringFrontend
 {
-
-    /**
-     * Pattern an entry identifier must match.
-     */
-    const PATTERN_ENTRYIDENTIFIER = '/^[a-zA-Z0-9_%\-&%^]{1,250}$/';
-
-
-
     /**
      * Checks the validity of an entry identifier. Returns TRUE if it's valid.
      *
@@ -41,7 +37,6 @@ class Frontend_String
     public function isValidEntryIdentifier($identifier)
     {
         return true;
-        return preg_match(self::PATTERN_ENTRYIDENTIFIER, $identifier) === 1;
     }
 
 

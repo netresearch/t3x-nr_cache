@@ -6,19 +6,21 @@ declare(encoding = 'UTF-8');
  * @package    Netresearch
  * @subpackage Cache
  * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
- * @license    AGPL http://www.netresearch.de/
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  * @link       http://www.netresearch.de/
- * @api
- * @scope       prototype
  */
-
 
 namespace Netresearch\Cache;
 
 /**
- * Class AbstractCallable
+ * Function cache frontend
  *
- * @package Netresearch\Cache
+ * @category   Controller
+ * @package    Netresearch
+ * @subpackage Cache
+ * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
+ * @link       http://www.netresearch.de/
  */
 class Frontend_FunctionResult
     extends \t3lib_cache_frontend_AbstractFrontend
@@ -222,6 +224,7 @@ class Frontend_FunctionResult
      * @param string $callback like Cache_Function_NrTest->registeredCallback
      * @param array  $arParams parameter for callback method
      *
+     * @todo
      * @return void
      */
     public function setCallbacks($callback, $arParams)

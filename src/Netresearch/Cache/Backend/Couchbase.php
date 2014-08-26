@@ -24,10 +24,8 @@ declare(encoding = 'UTF-8');
  * @package    Netresearch
  * @subpackage CachingFramework
  * @author     Sebastian Mendel <sebastian.mendel@netresearch.de>
- * @license    AGPL http://www.netresearch.de/
+ * @license    http://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License
  * @link       http://www.netresearch.de/
- * @api
- * @scope       prototype
  */
 
 namespace Netresearch\Cache;
