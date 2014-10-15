@@ -11,8 +11,8 @@
  ***************************************************************/
 
 $EM_CONF[$_EXTKEY] = array(
-	'title' => 'Netresearch CachingFramework module.',
-	'description' => 'Provides a Redis and Couchbase CachingFramework backend and code and functionresult frontend.',
+	'title' => 'Netresearch CachingFramework module - support code cache with in-memory store.',
+	'description' => 'Provides a Redis and Couchbase CachingFramework backend and frontend which supports caching of code (extbase, fluid and autoloader cache) and function results in memory based caching systems offloading cache from filesystem and database.',
 	'category' => 'fe',
 	'author' => 'Sebastian Mendel',
 	'author_company' => 'Netresearch GmbH & Co.KG',
