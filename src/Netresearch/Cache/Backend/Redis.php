@@ -41,6 +41,117 @@ class Backend_Redis
 
 
     /**
+     * Checks every identifier to tag index or its associated identifier - if not
+     * existing it removes this identifier to tag index and its associated
+     * tag to identifier index.
+     *
+     * Requires Redis >= 2.6
+     *
+     * @return void
+     */
+    public function collectGarbage()
+    {
+        $nCursor = null;
+
+        $strCleanScriptSha = $this->loadCleanScript();
+        $arGlobStats = array(
+            0 => 0,
+            1 => 0,
+        );
+
+        while ($identifierToTagsKeys = $this->redis->scan($nCursor, self::IDENTIFIER_TAGS_PREFIX . '*')) {
+            $arStats = $this->redis->evalSha(
+                $strCleanScriptSha,
+                array_merge(
+                    $identifierToTagsKeys,
+                    array(
+                        $this->database,
+                        self::IDENTIFIER_TAGS_PREFIX,
+                        self::IDENTIFIER_DATA_PREFIX,
+                        self::TAG_IDENTIFIERS_PREFIX,
+                    )
+                ),
+                count($identifierToTagsKeys)
+            );
+            $arGlobStats[0] += $arStats[0];
+            $arGlobStats[1] += $arStats[1];
+        }
+
+        \t3lib_div::sysLog(
+            'Deleted ' . $arGlobStats[0] . ' out of ' . $arGlobStats[1]
+            . ' checked entries on DB ' . $this->database . '.',
+            'nr_cache',
+            \t3lib_div::SYSLOG_SEVERITY_INFO
+        );
+    }
+
+
+
+    /**
+     * Load LUA script for pruning obsolete cache entries into Redis.
+     *
+     * @return string Script SHA
+     */
+    protected function loadCleanScript()
+    {
+        static $strCleanScriptSha = null;
+
+        $strCleanScript = <<<LUA
+            -- check given KEYs for existence and cleanup TAG index
+            -- Return aray with 1 = deleted keys; 2 = checked keys
+
+            local db = ARGV[1]
+            local id_tag_prefix = ARGV[2]
+            local id_data_prefix = ARGV[3]
+            local tag_id_prefix = ARGV[4]
+
+            redis.call('select', db)
+
+            local stats = {}
+            stats[1] = 0
+            stats[2] = 0
+            -- stats[3] = ''
+
+            for _,tagkey in ipairs(KEYS) do
+                stats[2] = stats[2] + 1
+                -- stats[3] = stats[3] .. ' ! ' .. tagkey
+                local key = string.gsub(tagkey, id_tag_prefix, '')
+                -- stats[3] = stats[3] .. ' key: ' .. key
+                -- check identData:KEY for existence
+                if 0 == redis.call('EXISTS', id_data_prefix .. key) then
+                    stats[1] = stats[1] + 1
+                    -- delete KEY entries from tagIdents:TAG hash/list
+                    for _,tag in ipairs(redis.call('SMEMBERS', tagkey)) do
+                        -- stats[3] = stats[3] .. ' SREM:' .. tag_id_prefix .. tag .. '#' .. key
+                        redis.call('SREM', tag_id_prefix .. tag, key)
+                    end
+
+                    -- delete whole identTags:KEY index
+                    -- stats[3] = stats[3] .. ' DEL:' .. tagkey
+                    redis.call('DEL', tagkey)
+                end
+            end
+
+            return stats
+LUA;
+
+        if ($strCleanScriptSha) {
+            // array(0 => 0)
+            list($bScriptLoaded) = $this->redis->script('exists', $strCleanScript);
+        } else {
+            $bScriptLoaded = false;
+        }
+
+        if (false == $bScriptLoaded) {
+            $strCleanScriptSha = $this->redis->script('load', $strCleanScript);
+        }
+
+        return $strCleanScriptSha;
+    }
+
+
+
+    /**
      * Loads PHP code from the cache and require_onces it right away.
      *
      * @param string $entryIdentifier An identifier which describes the cache

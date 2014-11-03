@@ -1,3 +1,7 @@
+2014-11-03  Sebastian Mendel  <sebastian.mendel@netresearch.de>
+
+	* TYPO-2821: Tweak memory usage for garbage collector by using SCAN und serverside LUA scripting
+
 2014-10-15  Sebastian Mendel  <sebastian.mendel@netresearch.de>
 
 	* Version: 1.4.1
