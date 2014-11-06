@@ -16,6 +16,15 @@ folders into Redis.
 - Couchbase - provide a Couchbase caching framework backend
 - Function cache - provides a callable caching frontend
 
+Garbage collection
+------------------
+
+nr_cache requires less memory and time when processing the garbage collection.
+nr_cache uses SCAN and a LUA script for garbage collection which results in lower
+memory consumption cause there is no need to retrieve all identTags:-keys and
+all checks for obsolete indentTags:-keys are running inside redis.
+
+
 Configuration
 =============
 
