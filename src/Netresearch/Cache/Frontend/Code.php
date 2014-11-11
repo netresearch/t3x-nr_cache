@@ -25,7 +25,7 @@ namespace Netresearch\Cache;
  * @link       http://www.netresearch.de/
  */
 class Frontend_Code
-    extends \t3lib_cache_frontend_PhpFrontend
+    extends \TYPO3\CMS\Core\Cache\Frontend\PhpFrontend
 {
     /**
      * Checks the validity of an entry identifier. Returns TRUE if it's valid.

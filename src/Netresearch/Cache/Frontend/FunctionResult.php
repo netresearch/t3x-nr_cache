@@ -24,7 +24,7 @@ namespace Netresearch\Cache;
  * @link       http://www.netresearch.de/
  */
 class Frontend_FunctionResult
-    extends \t3lib_cache_frontend_AbstractFrontend
+    extends \TYPO3\CMS\Core\Cache\Frontend\AbstractFrontend
 {
     /**
      * @var integer Cache expire time

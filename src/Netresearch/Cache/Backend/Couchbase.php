@@ -36,8 +36,8 @@ namespace Netresearch\Cache;
  * @package Netresearch\Cache\Couchbase
  */
 class Backend_Couchbase
-    extends \t3lib_cache_backend_AbstractBackend
-    implements \t3lib_cache_backend_PhpCapableBackend
+    extends \TYPO3\CMS\Core\Cache\Backend\AbstractBackend
+    implements \TYPO3\CMS\Core\Cache\Backend\PhpCapableBackendInterface
 {
     const TAG_INDEX_PREFIX = 'tag::';
     const IDENT_INDEX_PREFIX = 'ident::';
@@ -228,12 +228,13 @@ class Backend_Couchbase
     /**
      * Sets a reference to the cache frontend which uses this backend
      *
-     * @param \t3lib_cache_frontend_Frontend $cache The frontend for this backend
+     * @param object $cache The frontend for this backend
      *
      * @return void
      */
-    public function setCache(\t3lib_cache_frontend_Frontend $cache)
-    {
+    public function setCache(
+        \TYPO3\CMS\Core\Cache\Frontend\FrontendInterface $cache
+    ) {
         parent::setCache($cache);
         $this->couchbase->setOption(
             COUCHBASE_OPT_PREFIX_KEY, $this->cacheIdentifier

@@ -16,11 +16,11 @@ namespace Netresearch\Cache;
 /**
  * Class Netresearch_Cache_Backend_Redis
  *
- * @package Netresearch\Cache\Couchbase
+ * @package Netresearch\Cache\Redis
  */
 class Backend_Redis
-    extends \t3lib_cache_backend_RedisBackend
-    implements \t3lib_cache_backend_PhpCapableBackend
+    extends \TYPO3\CMS\Core\Cache\Backend\RedisBackend
+    implements \TYPO3\CMS\Core\Cache\Backend\PhpCapableBackendInterface
 {
     /**
      * Does nothing.

@@ -25,7 +25,7 @@ namespace Netresearch\Cache;
  * @link       http://www.netresearch.de/
  */
 class Frontend_String
-    extends \t3lib_cache_frontend_StringFrontend
+    extends \TYPO3\CMS\Core\Cache\Frontend\StringFrontend
 {
     /**
      * Checks the validity of an entry identifier. Returns TRUE if it's valid.
