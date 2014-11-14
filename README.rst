@@ -115,6 +115,18 @@ Couchbase options
 - servers
 - compression
 
+Frontends
+=========
+
+Non-volatile
+------------
+
+The non-volatile frontend prevents any automatically deletion of cache entries by
+garbage collectors or flushing or lifetime.
+
+This is usefull for caches your app relies on or if a loss of this cache would
+introduce major performance issues.
+
 TT News
 =======
 

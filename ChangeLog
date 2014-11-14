@@ -1,3 +1,7 @@
+2014-11-14  Sebastian Mendel  <sebastian.mendel@netresearch.de>
+
+	* TYPO-2688: add a  new non-volatile frontend for persistant caches
+
 2014-11-06  Tobias Hein  <tobias.hein@netresearch.de>
 
 	* Version: 2.0.0

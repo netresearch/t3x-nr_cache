@@ -28,6 +28,8 @@ return array(
         => $strPath . 'src/Netresearch/Cache/Frontend/FunctionResult.php',
     'netresearch\cache\frontend_string'
         => $strPath . 'src/Netresearch/Cache/Frontend/String.php',
+    'netresearch\cache\frontend_nonvolatile'
+        => $strPath . 'src/Netresearch/Cache/Frontend/NonVolatile.php',
     'netresearch\cache\streamwrapper'
         => $strPath . 'src/Netresearch/Cache/StreamWrapper.php',
 );
